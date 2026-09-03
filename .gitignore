@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.log
+
+# Local database and uploaded documents — never committed.
+server/prisma/dev.db
+server/prisma/dev.db-journal
+server/uploads/
+
+# .env holds the dev JWT secret; production values must not be committed.
+.env
+.DS_Store

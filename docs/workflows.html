@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Smart Hospital Platform — Role Workflows</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 18mm; }
+
+  :root {
+    --ink: #12202f;
+    --muted: #5a6b7d;
+    --line: #d6dee7;
+    --brand: #0d7ea8;
+    --brand-soft: #eaf5fa;
+    --ok: #12805c;
+    --ok-soft: #e6f6ef;
+    --warn: #a35a06;
+    --warn-soft: #fdf2e0;
+    --danger: #a91d1d;
+    --danger-soft: #fbeaea;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 10.2pt/1.5 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1, h2, h3, h4 { margin: 0; line-height: 1.25; }
+
+  /* --- cover ------------------------------------------------------------ */
+
+  .cover {
+    height: 250mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    page-break-after: always;
+  }
+  .cover .mark {
+    width: 46px; height: 46px; border-radius: 12px; background: var(--brand);
+    color: #fff; display: grid; place-items: center; font-size: 24pt; font-weight: 300;
+    margin-bottom: 18mm;
+  }
+  .cover h1 { font-size: 30pt; letter-spacing: -0.5pt; margin-bottom: 4mm; }
+  .cover .sub { font-size: 13pt; color: var(--muted); margin-bottom: 16mm; max-width: 130mm; }
+  .cover dl { display: grid; grid-template-columns: 42mm 1fr; gap: 2mm 0; font-size: 9.5pt; max-width: 140mm; }
+  .cover dt { color: var(--muted); }
+  .cover dd { margin: 0; }
+
+  /* --- chapters --------------------------------------------------------- */
+
+  .chapter { page-break-before: always; }
+
+  .chapter-head {
+    border-bottom: 2.5px solid var(--brand);
+    padding-bottom: 3mm;
+    margin-bottom: 5mm;
+    display: flex;
+    align-items: baseline;
+    gap: 4mm;
+  }
+  .chapter-num {
+    font-size: 9pt; font-weight: 700; color: var(--brand);
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .chapter-head h2 { font-size: 19pt; letter-spacing: -0.3pt; }
+  .chapter-head .role-tag {
+    margin-left: auto; font-size: 8pt; font-family: ui-monospace, Menlo, monospace;
+    color: var(--muted); background: #f2f5f8; border: 1px solid var(--line);
+    padding: 1mm 2.5mm; border-radius: 3mm; white-space: nowrap;
+  }
+
+  h3 {
+    font-size: 11.5pt; margin: 7mm 0 2.5mm;
+    padding-bottom: 1.5mm; border-bottom: 1px solid var(--line);
+  }
+  h4 { font-size: 10pt; margin: 4mm 0 1.5mm; color: var(--brand); }
+
+  p { margin: 0 0 2.5mm; }
+  .lede { color: var(--muted); font-size: 10.5pt; margin-bottom: 4mm; }
+
+  /* --- step list -------------------------------------------------------- */
+
+  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0 0 4mm; }
+  ol.steps > li {
+    counter-increment: step;
+    position: relative;
+    padding: 0 0 3.5mm 11mm;
+    page-break-inside: avoid;
+  }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 7mm; height: 7mm; border-radius: 50%;
+    background: var(--brand-soft); color: var(--brand);
+    font-size: 8.5pt; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  ol.steps > li::after {
+    content: ""; position: absolute; left: 3.4mm; top: 7.5mm; bottom: 0;
+    width: 1px; background: var(--line);
+  }
+  ol.steps > li:last-child::after { display: none; }
+  ol.steps .what { font-weight: 600; }
+  ol.steps .detail { color: var(--muted); }
+  ol.steps .tech {
+    font-family: ui-monospace, Menlo, monospace; font-size: 8pt;
+    color: var(--brand); margin-top: 0.8mm; display: block;
+  }
+
+  /* --- boxes ------------------------------------------------------------ */
+
+  .box {
+    border: 1px solid var(--line); border-left: 3px solid var(--brand);
+    background: #fafcfd; padding: 3mm 4mm; margin: 0 0 4mm;
+    page-break-inside: avoid; font-size: 9.5pt;
+  }
+  .box.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+  .box.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .box.deny { border-left-color: var(--danger); background: var(--danger-soft); }
+  .box strong { display: block; margin-bottom: 1mm; }
+  .box ul { margin: 1mm 0 0; padding-left: 4.5mm; }
+  .box li { margin-bottom: 0.8mm; }
+
+  /* --- tables ----------------------------------------------------------- */
+
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 0 0 4mm; page-break-inside: avoid; }
+  th, td { text-align: left; padding: 1.8mm 2.5mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 7.8pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 1.5px solid var(--line); }
+  td code { font-size: 8.2pt; }
+  tr { page-break-inside: avoid; }
+
+  code {
+    font-family: ui-monospace, Menlo, monospace; font-size: 8.6pt;
+    background: #f2f5f8; padding: 0.3mm 1.2mm; border-radius: 1mm;
+  }
+
+  /* --- flow diagram ----------------------------------------------------- */
+
+  .flow {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 1.5mm;
+    margin: 0 0 4mm; page-break-inside: avoid;
+  }
+  .node {
+    border: 1px solid var(--line); background: #fff; border-radius: 2mm;
+    padding: 1.2mm 2.5mm; font-size: 8.2pt; font-weight: 600;
+  }
+  .node.start { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); }
+  .node.end { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .node.bad { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+  .arrow { color: var(--muted); font-size: 9pt; }
+
+  /* who performs each step in the shared journey */
+  .lane { font-size: 7.4pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+          color: var(--muted); align-self: flex-start; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 6mm; }
+
+  .tag {
+    display: inline-block; font-size: 7.8pt; font-weight: 600;
+    padding: 0.4mm 1.8mm; border-radius: 3mm; margin-right: 1mm;
+    background: #f2f5f8; color: var(--muted); border: 1px solid var(--line);
+  }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+  .tag.deny { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+
+  .footnote { font-size: 8.5pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 2mm; margin-top: 5mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<section class="cover">
+  <div class="mark">+</div>
+  <h1>Complete Workflows<br>by User Role</h1>
+  <p class="sub">
+    Smart Hospital Management, Patient Care &amp; Forecasting Platform — every journey through the
+    system, from the point of view of each person who uses it.
+  </p>
+  <dl>
+    <dt>Document</dt><dd>Role workflow specification</dd>
+    <dt>Version</dt><dd>2.0</dd>
+    <dt>Date</dt><dd>15 August 2026</dd>
+    <dt>Roles covered</dt><dd>3 — patient, doctor, reception</dd>
+    <dt>Corresponds to</dt><dd>Implemented system (server + web)</dd>
+  </dl>
+</section>
+
+<!-- ============================ OVERVIEW ============================ -->
+<section class="chapter">
+  <div class="chapter-head">
+    <span class="chapter-num">Overview</span>
+    <h2>Three roles, one episode</h2>
+  </div>
+
+  <p class="lede">
+    The platform has exactly three logins. The patient asks for care, the doctor delivers it, and
+    reception runs everything else the hospital needs to make that possible.
+  </p>
+
+  <h3>Who does what</h3>
+  <table>
+    <thead>
+      <tr><th>Role</th><th>Owns</th><th>Cannot</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Patient</strong><br><code>PATIENT</code></td>
+        <td>Their own bookings, records, reports and bills</td>
+        <td>See any other patient; change clinical fields; see an unverified lab result</td>
+      </tr>
+      <tr>
+        <td><strong>Doctor</strong><br><code>DOCTOR</code></td>
+        <td>Consultations, vitals, diagnoses, prescriptions, lab orders, admission requests, discharge summaries</td>
+        <td>Open a chart with no treating relationship; allocate beds; touch stock or money</td>
+      </tr>
+      <tr>
+        <td><strong>Reception</strong><br><code>RECEPTIONIST</code></td>
+        <td>Registration, scheduling, wards and ICU, admissions, emergency, theatres, laboratory, pharmacy, billing, analytics, forecasting, audit</td>
+        <td>Diagnose or prescribe; complete a consultation; release lab results they entered themselves; reach another hospital</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box">
+    <strong>Why one desk role instead of seven</strong>
+    A small hospital does not staff a separate lab technician, pharmacist, ward manager and billing
+    clerk in software. Collapsing them into one reception role removes six permission matrices, six
+    sets of navigation and six seed accounts, while the underlying workflows — sample collection,
+    dispensing, bed allocation, payment — stay exactly as they were.
+  </div>
+
+  <h3>The outpatient episode, end to end</h3>
+  <div class="flow">
+    <span class="lane">Patient</span>
+    <span class="node start">Books a slot</span><span class="arrow">→</span>
+    <span class="lane">Reception</span>
+    <span class="node">Confirms</span><span class="arrow">→</span>
+    <span class="node">Checks in, issues token</span><span class="arrow">→</span>
+    <span class="lane">Doctor</span>
+    <span class="node">Consults, diagnoses, prescribes</span><span class="arrow">→</span>
+    <span class="lane">Reception</span>
+    <span class="node">Lab, pharmacy, payment</span><span class="arrow">→</span>
+    <span class="node end">Follow-up</span>
+  </div>
+
+  <h3>The inpatient branch</h3>
+  <div class="flow">
+    <span class="lane">Doctor</span>
+    <span class="node start">Requests admission</span><span class="arrow">→</span>
+    <span class="lane">Reception</span>
+    <span class="node">Approves, allocates bed</span><span class="arrow">→</span>
+    <span class="node">Treatment, surgery</span><span class="arrow">→</span>
+    <span class="lane">Doctor</span>
+    <span class="node">Discharge summary</span><span class="arrow">→</span>
+    <span class="lane">Reception</span>
+    <span class="node end">Final bill</span>
+  </div>
+
+  <div class="box">
+    <strong>The access rule behind every screen</strong>
+    Access is <code>role + hospital + relationship</code>. A doctor sees a patient's chart only when
+    an appointment, admission, lab order or prescription links them. Reception sees only patients
+    with a record at its own hospital. Patients see only themselves. No account can read across
+    hospitals — the platform-wide role does not exist. Every chart opened is written to the audit
+    log with who, what and when.
+  </div>
+</section>
+
+<!-- ============================ PATIENT ============================ -->
+<section class="chapter">
+  <div class="chapter-head">
+    <span class="chapter-num">Role 01</span>
+    <h2>Patient</h2>
+    <span class="role-tag">PATIENT</span>
+  </div>
+
+  <p class="lede">
+    A person seeking care. Self-registers, finds a hospital and doctor, books, attends, and
+    afterwards holds a permanent record of everything that happened.
+  </p>
+
+  <h3>Registration and first sign-in</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Create an account</span> —
+      <span class="detail">name, email, mobile, password, date of birth, gender, blood group, address
+      and emergency contact. Password must be at least 8 characters.</span>
+      <code class="tech">POST /api/auth/register</code>
+    </li>
+    <li>
+      <span class="what">Verify with the OTP</span> —
+      <span class="detail">a six-digit code activates the account. Until it is entered the account
+      stays <span class="tag warn">PENDING VERIFICATION</span> and cannot be used.</span>
+      <code class="tech">POST /api/auth/verify-otp</code>
+    </li>
+    <li>
+      <span class="what">Land on the dashboard</span> —
+      <span class="detail">upcoming appointments, reports ready, active medication, outstanding
+      balance, follow-ups due.</span>
+      <code class="tech">GET /api/patients/{id}/dashboard</code>
+    </li>
+  </ol>
+
+  <h3>Finding care</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Search hospitals</span> —
+      <span class="detail">filter by city, specialty, department, minimum rating, emergency
+      availability, and "doctors available today". Each result shows live bed and ICU availability.</span>
+      <code class="tech">GET /api/hospitals</code>
+    </li>
+    <li>
+      <span class="what">Open a hospital</span> —
+      <span class="detail">departments, facilities, free beds, free ICU beds, free ventilators, and
+      the full list of doctors.</span>
+      <code class="tech">GET /api/hospitals/{id}</code>
+    </li>
+    <li>
+      <span class="what">Search doctors</span> —
+      <span class="detail">by name or specialty, city, minimum experience, maximum fee, and
+      availability on a chosen date. Only verified, active doctors appear.</span>
+      <code class="tech">GET /api/doctors</code>
+    </li>
+    <li>
+      <span class="what">Read the doctor profile</span> —
+      <span class="detail">qualification, experience, department, fee, languages, medical
+      registration number, slot length and the published weekly clinic hours.</span>
+      <code class="tech">GET /api/doctors/{id}</code>
+    </li>
+  </ol>
+
+  <h3>Booking an appointment</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Pick a date</span> —
+      <span class="detail">the system expands that day's clinic windows into concrete slots, removes
+      the ones already taken, and drops any slot already in the past.</span>
+      <code class="tech">GET /api/doctors/{id}/slots?date=…</code>
+    </li>
+    <li>
+      <span class="what">Choose type and reason</span> —
+      <span class="detail">OPD, follow-up, specialist consultation or teleconsultation, plus a short
+      reason for the visit.</span>
+    </li>
+    <li>
+      <span class="what">Confirm the slot</span> —
+      <span class="detail">the appointment is created as <span class="tag">REQUESTED</span> and both
+      the patient and the doctor are notified.</span>
+      <code class="tech">POST /api/appointments</code>
+    </li>
+    <li>
+      <span class="what">Reschedule or cancel</span> —
+      <span class="detail">allowed while the appointment is requested or confirmed; cancelling asks
+      for an optional reason and notifies the doctor.</span>
+      <code class="tech">PUT /api/appointments/{id} · DELETE /api/appointments/{id}</code>
+    </li>
+  </ol>
+
+  <div class="box warn">
+    <strong>Two people, one slot</strong>
+    Slots are protected by a uniqueness rule on doctor and time. If someone else takes the slot in
+    the seconds between it being shown and being confirmed, the booking is rejected with
+    <em>"This time slot is no longer available. Please select another slot."</em> and the list refreshes.
+  </div>
+
+  <h3>Appointment lifecycle as the patient sees it</h3>
+  <div class="flow">
+    <span class="node start">REQUESTED</span><span class="arrow">→</span>
+    <span class="node">CONFIRMED</span><span class="arrow">→</span>
+    <span class="node">CHECKED IN</span><span class="arrow">→</span>
+    <span class="node">IN CONSULTATION</span><span class="arrow">→</span>
+    <span class="node end">COMPLETED</span>
+    <span class="arrow" style="margin-left:4mm">or</span>
+    <span class="node bad">CANCELLED</span>
+    <span class="node bad">REJECTED</span>
+    <span class="node bad">NO-SHOW</span>
+  </div>
+
+  <h3>On the day</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Check in at reception</span> —
+      <span class="detail">a token is issued at check-in, not at booking, so the queue reflects who
+      is actually present.</span>
+    </li>
+    <li>
+      <span class="what">Watch the queue</span> —
+      <span class="detail">own token, token now being served, patients ahead, and an estimated wait
+      based on how long today's consultations with that doctor have actually taken.</span>
+      <code class="tech">GET /api/appointments/queue/status</code>
+    </li>
+    <li>
+      <span class="what">Consultation</span> —
+      <span class="detail">the doctor records symptoms, vitals, notes, diagnosis, prescription and
+      any lab tests. Nothing is released to the patient until the consultation is completed.</span>
+    </li>
+  </ol>
+
+  <h3>Afterwards</h3>
+  <table>
+    <thead><tr><th>Screen</th><th>What the patient gets</th></tr></thead>
+    <tbody>
+      <tr><td>Medical records</td><td>Health profile, every consultation with diagnosis, notes and vitals, and every hospital admission with its discharge summary</td></tr>
+      <tr><td>Prescriptions</td><td>Each prescription with medicine, dose, frequency, duration, route, instructions and how much has been dispensed. Printable to PDF</td></tr>
+      <tr><td>Lab reports</td><td>Results with units, reference ranges and flags. A report that is not yet verified is not shown as a result</td></tr>
+      <tr><td>Bills &amp; payments</td><td>Itemised bills, outstanding amount, and payment by UPI, card or net banking</td></tr>
+      <tr><td>Profile</td><td>Personal details, insurance policies, two-factor toggle, and a list of active sessions that can be revoked individually</td></tr>
+      <tr><td>Notifications</td><td>Booking confirmations, report ready, prescription issued, payment received, follow-up due, discharge</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box deny">
+    <strong>What a patient can never do</strong>
+    <ul>
+      <li>Open another patient's record — the API answers <em>"You do not have permission to access this record."</em></li>
+      <li>Edit allergies or chronic conditions — those are written by clinical staff only.</li>
+      <li>Move an appointment to any status other than cancelled.</li>
+      <li>See a lab result before the laboratory has verified it.</li>
+      <li>Pay more than the outstanding balance on a bill.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================ DOCTOR ============================ -->
+<section class="chapter">
+  <div class="chapter-head">
+    <span class="chapter-num">Role 02</span>
+    <h2>Doctor</h2>
+    <span class="role-tag">DOCTOR</span>
+  </div>
+
+  <p class="lede">
+    Registers against a hospital, waits for reception to verify them, then runs a clinic: accepting
+    appointments, consulting, diagnosing, prescribing, ordering tests, admitting and discharging.
+  </p>
+
+  <h3>Getting on the platform</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Self-register</span> —
+      <span class="detail">name, contact, hospital, department, medical registration number,
+      specialization, qualification, experience, consultation fee and slot length.</span>
+      <code class="tech">POST /api/doctors/register</code>
+    </li>
+    <li>
+      <span class="what">Wait for verification</span> —
+      <span class="detail">the account is created <span class="tag warn">PENDING VERIFICATION</span>.
+      An unverified doctor does not appear in patient search and cannot receive appointments.
+      Reception at their hospital activates them.</span>
+    </li>
+    <li>
+      <span class="what">Publish clinic hours</span> —
+      <span class="detail">windows per weekday, for example Monday 09:00–13:00 and 17:00–20:00. The
+      whole week is replaced in one transaction so the schedule is never left half-updated. Patients
+      can only book inside these windows, on exact slot boundaries.</span>
+      <code class="tech">PUT /api/doctors/{id}/availability</code>
+    </li>
+  </ol>
+
+  <h3>A clinic day</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Open the dashboard</span> —
+      <span class="detail">today's list, pending requests awaiting approval, follow-ups due, new lab
+      results with critical ones counted separately, and current inpatients.</span>
+      <code class="tech">GET /api/doctors/me/dashboard</code>
+    </li>
+    <li>
+      <span class="what">Accept or decline requests</span> —
+      <span class="detail">accepting moves the appointment to confirmed and notifies the patient.</span>
+      <code class="tech">POST /api/appointments/{id}/status</code>
+    </li>
+    <li>
+      <span class="what">Start the consultation</span> —
+      <span class="detail">opening the consultation screen creates the consultation and moves the
+      appointment to <span class="tag">IN CONSULTATION</span> in one step. Re-opening it resumes
+      rather than duplicating.</span>
+      <code class="tech">POST /api/consultations</code>
+    </li>
+  </ol>
+
+  <h3>Inside the consultation</h3>
+  <div class="cols">
+    <div>
+      <h4>Left: the record being written</h4>
+      <ul style="margin:0 0 3mm; padding-left:4.5mm;">
+        <li>Symptoms, clinical notes, treatment plan, follow-up date</li>
+        <li>Vitals — temperature, blood pressure, heart rate, respiratory rate, SpO₂, weight, height</li>
+        <li>Diagnoses with ICD-10 code, severity and a primary flag</li>
+        <li>Prescription lines — medicine, dose, frequency, duration, route, instruction</li>
+        <li>Lab tests selected from the hospital's catalogue</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Right: the history that informs it</h4>
+      <ul style="margin:0 0 3mm; padding-left:4.5mm;">
+        <li>Blood group, allergies and chronic conditions shown as warnings</li>
+        <li>Previous consultations with diagnosis and notes</li>
+        <li>Previous prescriptions</li>
+        <li>Previous lab orders and results</li>
+        <li>Past admissions and discharge summaries</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box">
+    <strong>Completing the consultation does five things at once</strong>
+    <ul>
+      <li>Marks the consultation complete and closes the appointment.</li>
+      <li>Writes a medical-record entry titled with the primary diagnosis.</li>
+      <li>Raises the consultation bill from the doctor's fee.</li>
+      <li>Notifies the patient that notes and prescription are available.</li>
+      <li>If a follow-up date was set, schedules the reminder.</li>
+    </ul>
+    It is refused if no diagnosis has been recorded.
+  </div>
+
+  <h3>Beyond the clinic</h3>
+  <table>
+    <thead><tr><th>Action</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td>Order lab tests</td><td>Routine, urgent or STAT. The reception lab queue sorts STAT first, then oldest within each band</td></tr>
+      <tr><td>Review results</td><td>Verified results arrive as notifications; critical flags are marked <span class="tag deny">CRITICAL</span></td></tr>
+      <tr><td>Request admission</td><td>Creates a request with reason and working diagnosis. Refused if the patient already has an open admission</td></tr>
+      <tr><td>Schedule surgery</td><td>Books a theatre; overlapping bookings in the same theatre are rejected</td></tr>
+      <tr><td>Discharge</td><td>Writes the discharge summary — diagnosis, procedures, medication, investigations, instructions, follow-up date — frees the bed to cleaning, and generates the consolidated final bill</td></tr>
+      <tr><td>Cancel a prescription</td><td>Only the prescribing doctor, and only while nothing has been dispensed against it</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box deny">
+    <strong>Boundaries</strong>
+    <ul>
+      <li>A chart opens only where a treating relationship exists — appointment, admission, lab order or prescription.</li>
+      <li>Another doctor's consultation cannot be edited or completed.</li>
+      <li>Beds are requested, never allocated directly; reception owns bed state.</li>
+      <li>No access to inventory, billing, analytics or the forecasting dashboard.</li>
+      <li>Every chart view and every record change is written to the audit log.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================ RECEPTION ============================ -->
+<section class="chapter">
+  <div class="chapter-head">
+    <span class="chapter-num">Role 03</span>
+    <h2>Reception</h2>
+    <span class="role-tag">RECEPTIONIST</span>
+  </div>
+
+  <p class="lede">
+    The hospital desk. Everything that is not a clinical judgement runs from here: the front desk,
+    the wards, the laboratory, the pharmacy, the cash counter and the planning dashboards.
+  </p>
+
+  <h3>Front desk</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Open the appointments board</span> —
+      <span class="detail">filtered by date range, doctor, status or patient name. Defaults to today
+      through the coming week.</span>
+      <code class="tech">GET /api/appointments</code>
+    </li>
+    <li>
+      <span class="what">Book for a patient</span> —
+      <span class="detail">search by name, mobile or email; pick the doctor and date; the dialog
+      offers only the slots the API says are genuinely free.</span>
+      <code class="tech">POST /api/appointments</code>
+    </li>
+    <li>
+      <span class="what">Confirm and check in</span> —
+      <span class="detail">check-in issues the token (<code>A-01</code>, <code>A-02</code>, …)
+      numbered per doctor per day, and places the patient in the queue.</span>
+      <code class="tech">POST /api/appointments/{id}/status</code>
+    </li>
+    <li>
+      <span class="what">Record vitals</span> —
+      <span class="detail">against an open consultation, before the doctor sees the patient. Ranges
+      are validated — temperature 25–45 °C, systolic 40–300, SpO₂ 30–100 — so a mistyped figure is
+      rejected rather than stored.</span>
+      <code class="tech">PUT /api/consultations/{id}/vitals</code>
+    </li>
+    <li>
+      <span class="what">Register emergency arrivals</span> —
+      <span class="detail">walk-ins can be registered with a name and phone alone — no account
+      required — with a triage level and presenting complaint. The queue sorts critical first, then
+      by arrival time.</span>
+      <code class="tech">POST /api/emergency</code>
+    </li>
+  </ol>
+
+  <h3>Wards, ICU and theatres</h3>
+  <div class="flow">
+    <span class="node end">AVAILABLE</span><span class="arrow">→</span>
+    <span class="node bad">OCCUPIED</span><span class="arrow">→</span>
+    <span class="node">CLEANING</span><span class="arrow">→</span>
+    <span class="node end">AVAILABLE</span>
+    <span class="arrow" style="margin-left:4mm">also</span>
+    <span class="node">RESERVED</span>
+    <span class="node">MAINTENANCE</span>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <span class="what">Read the ward map</span> —
+      <span class="detail">general, ICU, isolation, private and emergency beds by ward, colour-coded
+      by status, with occupancy percentages, free ventilators and critical patients in ICU.</span>
+      <code class="tech">GET /api/beds · GET /api/beds/summary</code>
+    </li>
+    <li>
+      <span class="what">Create capacity</span> —
+      <span class="detail">beds are created in bulk: a prefix and a number range builds a whole ward
+      at once, skipping numbers that already exist. Hospital bed and ICU capacity update themselves
+      from the bed table, so the public profile and the forecast denominators are never typed twice.</span>
+      <code class="tech">POST /api/beds/bulk</code>
+    </li>
+    <li>
+      <span class="what">Approve admissions and allocate beds</span> —
+      <span class="detail">the picker offers only free beds. Claiming the bed and admitting the
+      patient happen in one transaction, so two patients can never land in the same bed. Transfers
+      claim the new bed and release the old one together.</span>
+      <code class="tech">POST /api/admissions/{id}/admit · /transfer</code>
+    </li>
+    <li>
+      <span class="what">Run the theatre board</span> —
+      <span class="detail">schedule surgeries with theatre, surgeon, procedure, time, duration and
+      charge. The theatre status follows the surgery: in use while operating, cleaning afterwards.</span>
+      <code class="tech">POST /api/ot/surgeries</code>
+    </li>
+  </ol>
+
+  <div class="box warn">
+    <strong>The race that matters</strong>
+    Bed allocation uses a conditional update: the bed is claimed only if it is still available at
+    that instant. If it was taken a moment earlier, the response is
+    <em>"That bed is no longer available. Please choose another bed."</em> and the picker refreshes.
+    An occupied bed also cannot be edited directly — <em>"Discharge the patient before changing this
+    bed status."</em>
+  </div>
+
+  <h3>Laboratory</h3>
+  <div class="flow">
+    <span class="node start">ORDERED</span><span class="arrow">→</span>
+    <span class="node">SAMPLE COLLECTED</span><span class="arrow">→</span>
+    <span class="node">PROCESSING</span><span class="arrow">→</span>
+    <span class="node">RESULT ENTERED</span><span class="arrow">→</span>
+    <span class="node end">VERIFIED</span>
+    <span class="arrow" style="margin-left:4mm">or</span>
+    <span class="node bad">CANCELLED</span>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <span class="what">Work the queue</span> —
+      <span class="detail">orders sorted STAT first, then urgent, then routine, oldest first inside
+      each band.</span>
+      <code class="tech">GET /api/lab/orders</code>
+    </li>
+    <li>
+      <span class="what">Collect and process</span> —
+      <span class="detail">assign the sample identifier; collection time and collector are stamped
+      automatically.</span>
+      <code class="tech">POST /api/lab/orders/{id}/collect · /process</code>
+    </li>
+    <li>
+      <span class="what">Enter results</span> —
+      <span class="detail">value, unit, reference range and a flag per test. A result referring to a
+      test not on the order is rejected. The order moves as a whole, so a half-filled report never
+      reaches the patient.</span>
+      <code class="tech">POST /api/lab/orders/{id}/results</code>
+    </li>
+    <li>
+      <span class="what">Have a colleague release it</span> —
+      <span class="detail">verification makes the report visible to the patient, writes a
+      medical-record entry, and notifies the patient and the ordering doctor — flagged critical if
+      any value is.</span>
+      <code class="tech">POST /api/lab/orders/{id}/verify</code>
+    </li>
+  </ol>
+
+  <div class="box deny">
+    <strong>Four-eyes rule survives the simplification</strong>
+    The account that entered the results cannot verify them:
+    <em>"Results must be verified by someone other than the technician who entered them."</em>
+    This is why the hospital needs at least two reception accounts, and why the seed creates two.
+  </div>
+
+  <h3>Pharmacy</h3>
+  <ol class="steps">
+    <li>
+      <span class="what">Check the three alert counts</span> —
+      <span class="detail">low stock, expiring within thirty days, already expired.</span>
+      <code class="tech">GET /api/pharmacy/alerts</code>
+    </li>
+    <li>
+      <span class="what">Receive stock</span> —
+      <span class="detail">medicine, form, strength, batch, quantity, reorder level, expiry, supplier
+      and price. Re-adding an existing medicine and batch tops up that batch rather than creating a
+      duplicate row.</span>
+      <code class="tech">POST /api/pharmacy/inventory</code>
+    </li>
+    <li>
+      <span class="what">Dispense</span> —
+      <span class="detail">match each prescribed line to a batch in stock. Stock is decremented, the
+      dispensed quantity is recorded against the prescription, and a dispense record is written — all
+      in one transaction. Anything that crosses its reorder level raises an immediate notification.</span>
+      <code class="tech">POST /api/pharmacy/dispense</code>
+    </li>
+  </ol>
+
+  <div class="box deny">
+    <strong>Refused at the counter</strong>
+    <ul>
+      <li>Dispensing from an expired batch — <em>"… has expired."</em></li>
+      <li>Dispensing more than the batch holds — <em>"Only N unit(s) of … are in stock."</em></li>
+      <li>Dispensing against a cancelled prescription, or one from another hospital.</li>
+      <li>Adding stock that is already past its expiry date.</li>
+    </ul>
+  </div>
+
+  <h3>Billing</h3>
+  <table>
+    <thead><tr><th>Trigger</th><th>Bill produced</th></tr></thead>
+    <tbody>
+      <tr><td>Doctor completes a consultation</td><td>Consultation fee. Idempotent — a retry returns the same bill, never a duplicate</td></tr>
+      <tr><td>Patient is discharged</td><td>Consolidated stay: room or ICU nights (part-days round up, minimum one), verified lab and imaging, completed surgeries, medicines dispensed during the stay</td></tr>
+      <tr><td>Reception creates one</td><td>Manual bill for walk-in services, with any line items</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Line items can be added or removed across nine categories, with a discount or tax; every change
+    recalculates the bill from its items, so the total can never disagree with what it is made of.
+    Payments are taken by UPI, card, net banking, cash or insurance, and a settled insurance claim
+    automatically writes a payment for the approved amount.
+  </p>
+
+  <div class="box deny">
+    <strong>Guards</strong>
+    <ul>
+      <li>No line items may be added to a bill that is paid, cancelled or refunded.</li>
+      <li>A payment larger than the outstanding amount is refused — <em>"Payment exceeds the outstanding amount of N."</em></li>
+      <li>A claim cannot exceed the bill total, and the policy must belong to that patient.</li>
+    </ul>
+  </div>
+
+  <h3>Administration</h3>
+  <table>
+    <thead><tr><th>Screen</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>Doctors</td><td>Verify or suspend the hospital's doctors. Unverified doctors are invisible in search and cannot be booked</td></tr>
+      <tr><td>Reception staff</td><td>Create further desk accounts and manage departments</td></tr>
+      <tr><td>Hospital profile</td><td>Contact details, address, opening hours and facilities. Bed and ICU capacity follow the ward map automatically</td></tr>
+      <tr><td>Audit log</td><td>Who viewed which record, who prescribed, who released which report, who ran which forecast — scoped to people who work at this hospital</td></tr>
+      <tr><td>Analytics</td><td>Patients (volume, new versus returning, department, gender, age), doctors (completion and no-show rates), financial (collection, revenue by service, payment methods)</td></tr>
+      <tr><td>Reports</td><td>Seven reports — OPD, admissions, occupancy, revenue, laboratory, pharmacy, forecast — previewable and downloadable as CSV</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Forecasting</h3>
+  <p class="lede">
+    The planning dashboard, and the feature that makes this more than a booking system.
+  </p>
+
+  <ol class="steps">
+    <li>
+      <span class="what">Capture the day</span> —
+      <span class="detail">a daily snapshot rolls live activity into one row per hospital per day:
+      OPD, admissions, discharges, occupied beds and ICU beds, theatre cases, oxygen, blood by group
+      and revenue.</span>
+      <code class="tech">POST /api/forecast/data/snapshot</code>
+    </li>
+    <li>
+      <span class="what">Check data quality first</span> —
+      <span class="detail">usable days, date span, and issues grouped by rule. Rows with negative
+      quantities, duplicate dates, future dates or occupancy above capacity are excluded from
+      training; outliers are flagged but kept, because a genuine surge is what the model needs to
+      learn.</span>
+      <code class="tech">GET /api/forecast/data/quality</code>
+    </li>
+    <li>
+      <span class="what">Run the forecast</span> —
+      <span class="detail">seven metrics across three horizons plus eight blood groups — 45
+      forecasts, generated in about 150 ms over two years of data.</span>
+      <code class="tech">POST /api/forecast/run</code>
+    </li>
+    <li>
+      <span class="what">Read the dashboard</span> —
+      <span class="detail">per metric: current value, forecast average, percentage change, the
+      winning model and its MAPE. The chart shows recent actuals, the prediction, and a 95%
+      confidence band.</span>
+      <code class="tech">GET /api/forecast/dashboard</code>
+    </li>
+    <li>
+      <span class="what">Act on alerts and acknowledge them</span> —
+      <span class="detail">each carries a recommended action.</span>
+      <code class="tech">POST /api/forecast/alerts/{id}/acknowledge</code>
+    </li>
+  </ol>
+
+  <h4>What is forecast, and what raises an alert</h4>
+  <table>
+    <thead><tr><th>Metric</th><th>Unit</th><th>Alert condition</th></tr></thead>
+    <tbody>
+      <tr><td>OPD visits</td><td>visits/day</td><td>—</td></tr>
+      <tr><td>IPD admissions</td><td>admissions/day</td><td>—</td></tr>
+      <tr><td>Bed occupancy</td><td>%</td><td>Forecast peak ≥ 85% <span class="tag warn">WARNING</span></td></tr>
+      <tr><td>ICU occupancy</td><td>%</td><td>Forecast peak ≥ 90% <span class="tag deny">CRITICAL</span></td></tr>
+      <tr><td>Theatre cases</td><td>cases/day</td><td>—</td></tr>
+      <tr><td>Oxygen</td><td>cylinders/day</td><td>Demand growth ≥ 15% <span class="tag warn">WARNING</span></td></tr>
+      <tr><td>Blood (total and per group)</td><td>units/day</td><td>Demand growth ≥ 20% <span class="tag warn">WARNING</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="box ok">
+    <strong>How a model is chosen</strong>
+    Four models — moving average, seasonal naive, linear trend and Holt-Winters with a seven-day
+    season — each predict a held-out window of recent history. The one with the lowest MAPE wins and
+    is refit on the full series before producing the real forecast. Different metrics pick different
+    winners, and the dashboard names the winner and its error rate beside every number, so a forecast
+    is never presented as more certain than it is.
+  </div>
+</section>
+
+<!-- ============================ APPENDIX ============================ -->
+<section class="chapter">
+  <div class="chapter-head">
+    <span class="chapter-num">Appendix</span>
+    <h2>Cross-role reference</h2>
+  </div>
+
+  <h3>One episode, every handover</h3>
+  <table>
+    <thead><tr><th>Step</th><th>Actor</th><th>State after</th></tr></thead>
+    <tbody>
+      <tr><td>Books a slot</td><td>Patient</td><td>Appointment <span class="tag">REQUESTED</span></td></tr>
+      <tr><td>Accepts the request</td><td>Doctor or reception</td><td>Appointment <span class="tag">CONFIRMED</span></td></tr>
+      <tr><td>Checks the patient in</td><td>Reception</td><td><span class="tag">CHECKED IN</span>, token issued</td></tr>
+      <tr><td>Records vitals</td><td>Reception or doctor</td><td>Vitals attached to the consultation</td></tr>
+      <tr><td>Opens the consultation</td><td>Doctor</td><td><span class="tag">IN CONSULTATION</span></td></tr>
+      <tr><td>Diagnoses and prescribes</td><td>Doctor</td><td>Diagnosis and prescription recorded</td></tr>
+      <tr><td>Orders tests</td><td>Doctor</td><td>Lab order <span class="tag">ORDERED</span></td></tr>
+      <tr><td>Collects, processes, enters results</td><td>Reception</td><td><span class="tag warn">RESULT ENTERED</span></td></tr>
+      <tr><td>Verifies and releases</td><td>A second reception account</td><td><span class="tag ok">VERIFIED</span>, patient and doctor notified</td></tr>
+      <tr><td>Completes the consultation</td><td>Doctor</td><td><span class="tag ok">COMPLETED</span>, bill raised</td></tr>
+      <tr><td>Dispenses medicine</td><td>Reception</td><td>Stock decremented, prescription dispensed</td></tr>
+      <tr><td>Adds charges, takes payment</td><td>Reception</td><td>Bill <span class="tag ok">PAID</span></td></tr>
+      <tr><td>Attends the follow-up</td><td>Patient</td><td>New episode begins</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Permission matrix</h3>
+  <table>
+    <thead><tr><th>Capability</th><th>Patient</th><th>Doctor</th><th>Reception</th></tr></thead>
+    <tbody>
+      <tr><td>Book an appointment</td><td>own only</td><td>—</td><td>for any patient</td></tr>
+      <tr><td>Change appointment status</td><td>cancel only</td><td>yes</td><td>yes</td></tr>
+      <tr><td>Record vitals</td><td>—</td><td>yes</td><td>yes</td></tr>
+      <tr><td>Diagnose, prescribe, complete</td><td>—</td><td>yes</td><td>—</td></tr>
+      <tr><td>Order lab tests</td><td>—</td><td>yes</td><td>—</td></tr>
+      <tr><td>Enter and release lab results</td><td>—</td><td>—</td><td>yes (two accounts)</td></tr>
+      <tr><td>Dispense medicine, manage stock</td><td>—</td><td>—</td><td>yes</td></tr>
+      <tr><td>Allocate or transfer a bed</td><td>—</td><td>request only</td><td>yes</td></tr>
+      <tr><td>Discharge a patient</td><td>—</td><td>yes</td><td>yes</td></tr>
+      <tr><td>Create bills, take payment</td><td>pay own</td><td>—</td><td>yes</td></tr>
+      <tr><td>Verify a doctor</td><td>—</td><td>—</td><td>yes</td></tr>
+      <tr><td>Analytics, reports, audit log</td><td>—</td><td>—</td><td>yes</td></tr>
+      <tr><td>Run and read the forecast</td><td>—</td><td>—</td><td>yes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Refusals every role will meet</h3>
+  <table>
+    <thead><tr><th>Situation</th><th>Response</th></tr></thead>
+    <tbody>
+      <tr><td>Two patients take one slot</td><td>This time slot is no longer available. Please select another slot.</td></tr>
+      <tr><td>Booking outside published clinic hours</td><td>The selected time is not an available slot for this doctor.</td></tr>
+      <tr><td>Opening an unrelated patient's chart</td><td>You do not have permission to access this record.</td></tr>
+      <tr><td>Skipping a step in the lab pipeline</td><td>Cannot move a lab order from X to Y.</td></tr>
+      <tr><td>Verifying one's own lab results</td><td>Results must be verified by someone other than the technician who entered them.</td></tr>
+      <tr><td>Completing a consultation with no diagnosis</td><td>Record at least one diagnosis before completing the consultation.</td></tr>
+      <tr><td>Taking a bed that was just filled</td><td>That bed is no longer available. Please choose another bed.</td></tr>
+      <tr><td>Editing the status of an occupied bed</td><td>Discharge the patient before changing this bed status.</td></tr>
+      <tr><td>Dispensing expired or insufficient stock</td><td>… has expired. / Only N unit(s) of … are in stock.</td></tr>
+      <tr><td>Overpaying a bill</td><td>Payment exceeds the outstanding amount of N.</td></tr>
+      <tr><td>Reaching another hospital's records</td><td>This record belongs to another hospital.</td></tr>
+      <tr><td>Double-booking a theatre</td><td>OT-N is already booked from … for N minutes.</td></tr>
+      <tr><td>A doctor opening a reception screen</td><td>This action requires one of: RECEPTIONIST.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footnote">
+    Smart Hospital Management, Patient Care &amp; Forecasting Platform — role workflow specification,
+    version 2.0, 15 August 2026. Every workflow, endpoint and message in this document reflects the
+    implemented system.
+  </div>
+</section>
+
+</body>
+</html>

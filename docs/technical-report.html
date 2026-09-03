@@ -1,0 +1,1458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Smart Hospital Platform — Technical Report</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 18mm; }
+
+  :root {
+    --ink: #12202f;
+    --muted: #5a6b7d;
+    --faint: #8b9aab;
+    --line: #d6dee7;
+    --rule: #eef2f6;
+    --brand: #0d7ea8;
+    --brand-soft: #eaf5fa;
+    --ok: #12805c;
+    --ok-soft: #e6f6ef;
+    --warn: #a35a06;
+    --warn-soft: #fdf2e0;
+    --danger: #a91d1d;
+    --danger-soft: #fbeaea;
+    --code-bg: #f2f5f8;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 10pt/1.5 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1, h2, h3, h4, h5 { margin: 0; line-height: 1.25; }
+
+  /* --- cover ------------------------------------------------------------ */
+
+  .cover { height: 252mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
+  .cover .mark {
+    width: 46px; height: 46px; border-radius: 12px; background: var(--brand);
+    color: #fff; display: grid; place-items: center; font-size: 24pt; font-weight: 300; margin-bottom: 18mm;
+  }
+  .cover h1 { font-size: 30pt; letter-spacing: -0.5pt; margin-bottom: 4mm; }
+  .cover .sub { font-size: 12.5pt; color: var(--muted); margin-bottom: 15mm; max-width: 132mm; }
+  .cover dl { display: grid; grid-template-columns: 44mm 1fr; gap: 2mm 0; font-size: 9.5pt; max-width: 145mm; }
+  .cover dt { color: var(--muted); }
+  .cover dd { margin: 0; }
+
+  /* --- structure -------------------------------------------------------- */
+
+  .chapter { page-break-before: always; }
+
+  .chapter-head {
+    border-bottom: 2.5px solid var(--brand); padding-bottom: 3mm; margin-bottom: 5mm;
+    display: flex; align-items: baseline; gap: 4mm;
+  }
+  .chapter-num { font-size: 9pt; font-weight: 700; color: var(--brand); letter-spacing: .1em; text-transform: uppercase; }
+  .chapter-head h2 { font-size: 19pt; letter-spacing: -0.3pt; }
+
+  h3 { font-size: 11.5pt; margin: 7mm 0 2.5mm; padding-bottom: 1.5mm; border-bottom: 1px solid var(--line); }
+  h4 { font-size: 10pt; margin: 4.5mm 0 1.5mm; color: var(--brand); }
+  h5 { font-size: 9pt; margin: 3mm 0 1mm; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+
+  p { margin: 0 0 2.5mm; }
+  .lede { color: var(--muted); font-size: 10.5pt; margin-bottom: 4mm; }
+  ul, ol { margin: 0 0 2.5mm; padding-left: 5mm; }
+  li { margin-bottom: 0.9mm; }
+
+  /* --- contents --------------------------------------------------------- */
+
+  .toc { column-count: 2; column-gap: 8mm; font-size: 9.5pt; }
+  .toc-item { break-inside: avoid; margin-bottom: 2.5mm; }
+  .toc-item strong { display: block; }
+  .toc-item span { color: var(--muted); font-size: 8.8pt; }
+
+  /* --- step list -------------------------------------------------------- */
+
+  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0 0 4mm; }
+  ol.steps > li { counter-increment: step; position: relative; padding: 0 0 3.2mm 10.5mm; page-break-inside: avoid; }
+  ol.steps > li::before {
+    content: counter(step); position: absolute; left: 0; top: 0;
+    width: 6.6mm; height: 6.6mm; border-radius: 50%;
+    background: var(--brand-soft); color: var(--brand);
+    font-size: 8.2pt; font-weight: 700; display: grid; place-items: center;
+  }
+  ol.steps > li::after { content: ""; position: absolute; left: 3.2mm; top: 7.1mm; bottom: 0; width: 1px; background: var(--line); }
+  ol.steps > li:last-child::after { display: none; }
+  ol.steps .what { font-weight: 600; }
+  ol.steps .detail { color: var(--muted); }
+  .tech { font-family: ui-monospace, Menlo, monospace; font-size: 7.9pt; color: var(--brand); margin-top: 0.7mm; display: block; }
+
+  /* --- boxes ------------------------------------------------------------ */
+
+  .box {
+    border: 1px solid var(--line); border-left: 3px solid var(--brand);
+    background: #fafcfd; padding: 3mm 4mm; margin: 0 0 4mm; page-break-inside: avoid; font-size: 9.3pt;
+  }
+  .box.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+  .box.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .box.deny { border-left-color: var(--danger); background: var(--danger-soft); }
+  .box > strong:first-child { display: block; margin-bottom: 1mm; }
+
+  /* --- technology cards ------------------------------------------------- */
+
+  .tech-card {
+    border: 1px solid var(--line); border-radius: 2mm; padding: 3.5mm 4mm;
+    margin: 0 0 3.5mm; page-break-inside: avoid; background: #fff;
+  }
+  .tech-card .head { display: flex; align-items: baseline; gap: 3mm; margin-bottom: 2mm; padding-bottom: 1.8mm; border-bottom: 1px solid var(--rule); }
+  .tech-card .head h4 { margin: 0; font-size: 11pt; color: var(--ink); }
+  .tech-card .ver { font-family: ui-monospace, Menlo, monospace; font-size: 8pt; color: var(--faint); }
+  .tech-card .layer {
+    margin-left: auto; font-size: 7.4pt; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    background: var(--brand-soft); color: var(--brand); padding: 0.7mm 2mm; border-radius: 3mm;
+  }
+  .tech-card dl { display: grid; grid-template-columns: 26mm 1fr; gap: 1.4mm 3mm; margin: 0; font-size: 9.2pt; }
+  .tech-card dt { color: var(--faint); font-size: 8.2pt; text-transform: uppercase; letter-spacing: .04em; padding-top: 0.4mm; }
+  .tech-card dd { margin: 0; }
+
+  /* --- tables ----------------------------------------------------------- */
+
+  table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 0 0 4mm; page-break-inside: avoid; }
+  th, td { text-align: left; padding: 1.7mm 2.4mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 7.6pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 1.5px solid var(--line); }
+  tr { page-break-inside: avoid; }
+
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 8.4pt; background: var(--code-bg); padding: 0.3mm 1.2mm; border-radius: 1mm; }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 2mm;
+    padding: 3mm 3.5mm; margin: 0 0 4mm; font-family: ui-monospace, Menlo, monospace;
+    font-size: 8.1pt; line-height: 1.45; overflow: hidden; page-break-inside: avoid; white-space: pre-wrap;
+  }
+
+  /* --- flow diagram ----------------------------------------------------- */
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 1.4mm; margin: 0 0 4mm; page-break-inside: avoid; }
+  .node { border: 1px solid var(--line); background: #fff; border-radius: 2mm; padding: 1.1mm 2.4mm; font-size: 8pt; font-weight: 600; }
+  .node.start { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); }
+  .node.end { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .node.bad { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+  .arrow { color: var(--faint); font-size: 9pt; }
+  .lane { font-size: 7.2pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 6mm; }
+
+  .tag {
+    display: inline-block; font-size: 7.6pt; font-weight: 600; padding: 0.4mm 1.7mm; border-radius: 3mm;
+    margin-right: 1mm; background: var(--code-bg); color: var(--muted); border: 1px solid var(--line);
+  }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+  .tag.deny { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 0 0 5mm; }
+  .stat { border: 1px solid var(--line); border-radius: 2mm; padding: 2.5mm 3mm; }
+  .stat .n { font-size: 15pt; font-weight: 650; letter-spacing: -0.3pt; }
+  .stat .l { font-size: 7.8pt; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+
+  figure { margin: 0 0 4mm; page-break-inside: avoid; }
+  figcaption { font-size: 8.3pt; color: var(--faint); margin-top: 1.5mm; }
+  svg { display: block; width: 100%; height: auto; }
+
+  .footnote { font-size: 8.4pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 2mm; margin-top: 5mm; }
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<section class="cover">
+  <div class="mark">+</div>
+  <h1>Technical Report</h1>
+  <p class="sub">
+    Smart Hospital Management, Patient Care &amp; Forecasting Platform — the complete set of
+    workflows, and every technology choice with the reasoning behind it.
+  </p>
+  <dl>
+    <dt>Document</dt><dd>Architecture, technology and workflow specification</dd>
+    <dt>Version</dt><dd>1.0</dd>
+    <dt>Date</dt><dd>15 August 2026</dd>
+    <dt>Roles</dt><dd>Patient · Doctor · Reception</dd>
+    <dt>Implementation</dt><dd>13,304 lines — 6,878 server, 6,426 web</dd>
+    <dt>Corresponds to</dt><dd>The running system, not a proposal</dd>
+  </dl>
+</section>
+
+<!-- ============================ CONTENTS ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Contents</span><h2>What this document covers</h2></div>
+
+  <div class="toc">
+    <div class="toc-item"><strong>1 · System at a glance</strong><span>Architecture, request path, project numbers</span></div>
+    <div class="toc-item"><strong>2 · Technology stack</strong><span>Every dependency: where it is used, why it was chosen, what was rejected</span></div>
+    <div class="toc-item"><strong>3 · Data model</strong><span>41 entities and the relationships that matter</span></div>
+    <div class="toc-item"><strong>4 · Authentication workflows</strong><span>Registration, OTP, login, token refresh, sessions</span></div>
+    <div class="toc-item"><strong>5 · Appointment workflows</strong><span>Slot generation, booking, lifecycle, OPD queue</span></div>
+    <div class="toc-item"><strong>6 · Clinical workflows</strong><span>Consultation, vitals, diagnosis, prescription</span></div>
+    <div class="toc-item"><strong>7 · Laboratory workflow</strong><span>Order to verified report, with the four-eyes gate</span></div>
+    <div class="toc-item"><strong>8 · Pharmacy workflow</strong><span>Stock, expiry, dispensing, reorder alerts</span></div>
+    <div class="toc-item"><strong>9 · Inpatient workflows</strong><span>Admission, bed allocation, transfer, surgery, discharge</span></div>
+    <div class="toc-item"><strong>10 · Emergency workflow</strong><span>Walk-in registration, triage, escalation</span></div>
+    <div class="toc-item"><strong>11 · Billing workflows</strong><span>Automatic and manual bills, payment, insurance claims</span></div>
+    <div class="toc-item"><strong>12 · Forecasting pipeline</strong><span>Snapshot, quality gate, model race, alerts</span></div>
+    <div class="toc-item"><strong>13 · Supporting workflows</strong><span>Notifications, files, analytics, reports, audit</span></div>
+    <div class="toc-item"><strong>14 · Concurrency and integrity</strong><span>The four races the system defends against</span></div>
+    <div class="toc-item"><strong>15 · Security model</strong><span>Authentication, authorisation, record-level access</span></div>
+    <div class="toc-item"><strong>16 · Testing and verification</strong><span>What is proven, and how</span></div>
+    <div class="toc-item"><strong>17 · Configuration and deployment</strong><span>Environment, SQLite to PostgreSQL</span></div>
+    <div class="toc-item"><strong>18 · Deliberate simplifications</strong><span>Corners cut on purpose, and when to un-cut them</span></div>
+  </div>
+</section>
+
+<!-- ============================ 1. OVERVIEW ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 1</span><h2>System at a glance</h2></div>
+
+  <p class="lede">
+    A single-page React application per role, one Express API, one relational database, and a
+    forecasting engine that runs inside the API process rather than beside it.
+  </p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="n">3</div><div class="l">Roles</div></div>
+    <div class="stat"><div class="n">18</div><div class="l">Route modules</div></div>
+    <div class="stat"><div class="n">41</div><div class="l">Data entities</div></div>
+    <div class="stat"><div class="n">39</div><div class="l">Page components</div></div>
+  </div>
+
+  <h3>Architecture</h3>
+  <figure>
+    <svg viewBox="0 0 760 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
+      <defs>
+        <marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#8b9aab"/>
+        </marker>
+      </defs>
+      <style>
+        .bx { fill:#fff; stroke:#d6dee7; }
+        .bl { fill:#eaf5fa; stroke:#0d7ea8; }
+        .bg2 { fill:#f8fafc; stroke:#d6dee7; }
+        .t { font-size:11px; fill:#12202f; }
+        .tb { font-size:11px; fill:#12202f; font-weight:600; }
+        .ts { font-size:9px; fill:#5a6b7d; }
+        .tl { font-size:9px; fill:#8b9aab; font-weight:700; letter-spacing:.5px; }
+        .ln { stroke:#8b9aab; stroke-width:1; marker-end:url(#a); }
+      </style>
+
+      <!-- browser tier -->
+      <text x="0" y="12" class="tl">BROWSER</text>
+      <rect x="0" y="20" width="230" height="52" rx="6" class="bl"/>
+      <text x="12" y="40" class="tb">Patient app</text>
+      <text x="12" y="56" class="ts">/app · booking, records, bills</text>
+
+      <rect x="245" y="20" width="230" height="52" rx="6" class="bl"/>
+      <text x="257" y="40" class="tb">Doctor app</text>
+      <text x="257" y="56" class="ts">/doctor · consultation workspace</text>
+
+      <rect x="490" y="20" width="270" height="52" rx="6" class="bl"/>
+      <text x="502" y="40" class="tb">Reception app</text>
+      <text x="502" y="56" class="ts">/reception · desk, wards, lab, forecast</text>
+
+      <text x="760" y="90" class="ts" text-anchor="end">React 18 · Vite · React Router · Recharts</text>
+
+      <line x1="380" y1="76" x2="380" y2="112" class="ln"/>
+      <text x="390" y="98" class="ts">HTTPS · JSON · Bearer token</text>
+
+      <!-- api tier -->
+      <text x="0" y="128" class="tl">API — EXPRESS</text>
+      <rect x="0" y="136" width="760" height="112" rx="6" class="bg2"/>
+
+      <rect x="14" y="150" width="150" height="38" rx="4" class="bx"/>
+      <text x="24" y="166" class="tb">Middleware</text>
+      <text x="24" y="180" class="ts">CORS · rate limit · JSON</text>
+
+      <rect x="176" y="150" width="150" height="38" rx="4" class="bx"/>
+      <text x="186" y="166" class="tb">authenticate</text>
+      <text x="186" y="180" class="ts">JWT verify · load profile</text>
+
+      <rect x="338" y="150" width="150" height="38" rx="4" class="bx"/>
+      <text x="348" y="166" class="tb">requireRole</text>
+      <text x="348" y="180" class="ts">role gate per route</text>
+
+      <rect x="500" y="150" width="150" height="38" rx="4" class="bx"/>
+      <text x="510" y="166" class="tb">Zod parse</text>
+      <text x="510" y="180" class="ts">body / query schema</text>
+
+      <rect x="662" y="150" width="84" height="38" rx="4" class="bx"/>
+      <text x="672" y="166" class="tb">Handler</text>
+      <text x="672" y="180" class="ts">18 modules</text>
+
+      <rect x="14" y="198" width="360" height="38" rx="4" class="bx"/>
+      <text x="24" y="214" class="tb">Cross-cutting</text>
+      <text x="24" y="228" class="ts">access.js relationship check · audit.js · notify.js · http.js errors</text>
+
+      <rect x="386" y="198" width="360" height="38" rx="4" class="bl"/>
+      <text x="396" y="214" class="tb">Forecasting engine (in-process)</text>
+      <text x="396" y="228" class="ts">models · metrics · quality · snapshot · alerts</text>
+
+      <line x1="380" y1="252" x2="380" y2="288" class="ln"/>
+      <text x="390" y="274" class="ts">Prisma Client — typed queries, transactions</text>
+
+      <!-- data tier -->
+      <text x="0" y="304" class="tl">DATA</text>
+      <rect x="0" y="312" width="370" height="52" rx="6" class="bx"/>
+      <text x="12" y="332" class="tb">SQLite (development)</text>
+      <text x="12" y="348" class="ts">file:./dev.db — zero setup, same schema</text>
+
+      <rect x="390" y="312" width="370" height="52" rx="6" class="bx"/>
+      <text x="402" y="332" class="tb">PostgreSQL (production)</text>
+      <text x="402" y="348" class="ts">one env var + provider swap, no code change</text>
+
+      <text x="0" y="386" class="ts">Uploaded documents are written to disk (UPLOAD_DIR) with random filenames; the database stores only metadata.</text>
+    </svg>
+    <figcaption>Every request passes the same five gates before a handler runs. Nothing bypasses them.</figcaption>
+  </figure>
+
+  <h3>The path of one request</h3>
+  <pre>POST /api/consultations/{id}/complete   ← doctor clicks "Complete consultation"
+
+  1  rate limiter        300 requests / minute / IP
+  2  express.json        body parsed, capped at 1 MB
+  3  authenticate        JWT verified → req.user = { id, role, doctorId, hospitalId, … }
+  4  requireRole(DOCTOR) role gate
+  5  handler             loads consultation, checks it belongs to this doctor,
+                         refuses if no diagnosis recorded
+  6  $transaction        consultation completed + appointment closed +
+                         medical record written — all or nothing
+  7  createConsultationBill()   idempotent, keyed on appointmentId
+  8  notify()            row inserted for the patient
+  9  audit()             failure here is logged, never breaks the request
+ 10  serialize()         Prisma Decimal → number, then JSON</pre>
+
+  <h3>Repository layout</h3>
+  <pre>major Project/
+├── server/                     Node + Express API
+│   ├── prisma/schema.prisma    41 entities, single source of truth
+│   ├── prisma/seed.js          2 years of deterministic demo data
+│   ├── src/routes/             18 modules, one per domain
+│   ├── src/lib/                access · audit · notify · auth · http helpers
+│   ├── src/middleware/         authenticate, requireRole, hospital scoping
+│   ├── src/forecast/           models · metrics · quality · engine · snapshot
+│   ├── test/                   unit tests (node:test)
+│   └── scripts/                smoke + end-to-end verification
+├── web/                        React single-page application
+│   └── src/pages/{patient,doctor,reception,shared}
+└── docs/                       this report and the role workflow guide</pre>
+</section>
+
+<!-- ============================ 2. TECH STACK ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 2</span><h2>Technology stack</h2></div>
+
+  <p class="lede">
+    Sixteen packages — thirteen distinct libraries — and nothing else. Each one below states where it
+    is used in this project, the use case that justified it, and what was considered and rejected. Anything the standard library or
+    the platform could already do was not added.
+  </p>
+
+  <h3>Runtime and language</h3>
+
+  <div class="tech-card">
+    <div class="head"><h4>Node.js</h4><span class="ver">v26, ES modules</span><span class="layer">Runtime</span></div>
+    <dl>
+      <dt>Where</dt><dd>The entire API process, the seed script, the forecasting engine and the test runner.</dd>
+      <dt>Use case</dt><dd>A hospital API is almost entirely I/O — database reads, writes and notification inserts. Node's event loop handles that concurrency without a thread per request.</dd>
+      <dt>Why</dt><dd>One language across API, forecasting and browser means one toolchain, one dependency file, one mental model. It also made it possible to put the forecasting models in the same process rather than in a second service.</dd>
+      <dt>Rejected</dt><dd>Java Spring Boot — the PRD's other suggestion. It would have forced the forecasting models into a separate Python service with a REST hop between them, adding a deploy unit, a failure mode and a serialisation boundary for no gain at this scale.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>Express</h4><span class="ver">4.22</span><span class="layer">API framework</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>src/index.js</code> mounts 18 routers under <code>/api</code>; every route module is an <code>express.Router()</code>.</dd>
+      <dt>Use case</dt><dd>Routing, middleware chaining and a single error surface. The middleware chain is exactly how the security model is expressed: authenticate, then role gate, then handler.</dd>
+      <dt>Why</dt><dd>The middleware model maps directly onto layered authorisation. One error handler at the bottom of <code>index.js</code> converts <code>HttpError</code>, Prisma constraint errors and Multer size errors into consistent JSON, so no handler repeats error formatting.</dd>
+      <dt>Rejected</dt><dd>Fastify (marginally faster, smaller ecosystem for this use), NestJS (decorators and modules add ceremony a 18-route API does not need).</dd>
+    </dl>
+  </div>
+
+  <h3>Data layer</h3>
+
+  <div class="tech-card">
+    <div class="head"><h4>Prisma ORM</h4><span class="ver">6.19</span><span class="layer">Data access</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>prisma/schema.prisma</code> defines all 41 entities; <code>src/db.js</code> exports one client used by every route.</dd>
+      <dt>Use case</dt><dd>41 entities with deep relations — a patient history query pulls consultations, diagnoses, vitals, prescriptions, lab orders and admissions in one call through nested <code>include</code>. Hand-written SQL for that is a maintenance burden.</dd>
+      <dt>Why</dt><dd>Three specific properties earned it: the schema file is a single readable source of truth for the data model; <code>$transaction</code> makes the bed-allocation and discharge sequences atomic; and switching SQLite to PostgreSQL is a provider line plus an env var, because Prisma generates the dialect.</dd>
+      <dt>Rejected</dt><dd>Raw <code>better-sqlite3</code> (fast, but 41 entities of hand-written joins), Sequelize/TypeORM (heavier, weaker relation ergonomics), Knex (query builder without a schema source of truth).</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>SQLite → PostgreSQL</h4><span class="ver">dev → production</span><span class="layer">Database</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>DATABASE_URL</code> in <code>server/.env</code>, and the <code>provider</code> line in the schema.</dd>
+      <dt>Use case</dt><dd>Development, demonstration and evaluation need a database that works after <code>npm install</code> with nothing else running. Production needs concurrent writers and real backups.</dd>
+      <dt>Why</dt><dd>SQLite removes the single biggest setup obstacle — no server, no credentials, no container. The schema was deliberately written to avoid SQLite-only constructs so the move costs nothing: enum-like columns are <code>String</code> validated in <code>src/constants.js</code>, and the one JSON field (blood units by group) is stored as text. Both are portable.</dd>
+      <dt>Trade-off</dt><dd>SQLite serialises writers. Fine for a demo and a small clinic; PostgreSQL is the answer the moment two hospitals write concurrently at volume.</dd>
+    </dl>
+  </div>
+
+  <h3>Security and validation</h3>
+
+  <div class="tech-card">
+    <div class="head"><h4>jsonwebtoken + bcryptjs</h4><span class="ver">9.0 · 2.4</span><span class="layer">Authentication</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>src/lib/auth.js</code> — password hashing, access-token signing, refresh-token rotation, OTP generation.</dd>
+      <dt>Use case</dt><dd>A stateless 30-minute access token keeps every request cheap to authorise, while a long-lived refresh token stored as a <code>Session</code> row keeps revocation possible.</dd>
+      <dt>Why this combination</dt><dd>Pure JWT cannot be revoked before expiry, which is unacceptable when a password changes. Pure server sessions cost a database read on every request. Pairing a short JWT with a revocable refresh row gets both: fast authorisation, and a password change that kills every live session immediately.</dd>
+      <dt>Detail</dt><dd>OTP codes use <code>crypto.randomInt</code>, never <code>Math.random</code> — a credential, however short-lived, must not come from a predictable generator. bcrypt runs at cost factor 10.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>Zod</h4><span class="ver">3.25</span><span class="layer">Validation</span></div>
+    <dl>
+      <dt>Where</dt><dd>Every route: <code>parse(schema, req.body)</code> in <code>src/lib/http.js</code> wraps it so failures become a 400 with per-field messages.</dd>
+      <dt>Use case</dt><dd>The trust boundary. Clinical values need real bounds — temperature 25–45 °C, SpO₂ 30–100, systolic 40–300 — so a typo is rejected at the edge instead of being stored and later read as a vital sign.</dd>
+      <dt>Why</dt><dd>Schemas are values, so they compose: <code>hospitalSchema.partial().omit({...})</code> derives the update schema from the create schema, and the two cannot drift apart. Coercion (<code>z.coerce.number()</code>) handles query strings without manual parsing.</dd>
+      <dt>Rejected</dt><dd>Joi (heavier, no type inference), express-validator (imperative chains scattered through handlers), hand-written checks (would have been the largest source of duplication in the codebase).</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>express-rate-limit</h4><span class="ver">7.5</span><span class="layer">Abuse control</span></div>
+    <dl>
+      <dt>Where</dt><dd>Globally at 300 requests/minute; tightened to 20 per 15 minutes on <code>/api/auth/register</code>, <code>/login</code>, <code>/verify-otp</code> and <code>/resend-otp</code>.</dd>
+      <dt>Use case</dt><dd>Credential endpoints are the obvious brute-force target, and a six-digit OTP is only strong if guesses are limited.</dd>
+      <dt>Why</dt><dd>Four lines of configuration for a real class of attack. In-memory storage is correct for a single instance; a Redis store is the documented upgrade when the API runs on more than one.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>Multer</h4><span class="ver">1.4.5-lts</span><span class="layer">File upload</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>src/routes/files.js</code> — lab report scans, insurance documents, identity proofs, discharge summaries.</dd>
+      <dt>Use case</dt><dd>Multipart parsing with limits applied before anything touches disk: 15 MB, one file per request, and an allow-list of PDF, JPEG, PNG and WebP.</dd>
+      <dt>Why</dt><dd>Streams to disk instead of buffering whole files in memory. The client-supplied filename is discarded — the stored name is 16 random bytes plus an extension derived from the verified MIME type, which closes the path-traversal and double-extension routes in one step.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>cors + dotenv</h4><span class="ver">2.8 · 16.6</span><span class="layer">Configuration</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>src/index.js</code> and <code>server/.env</code>.</dd>
+      <dt>Use case</dt><dd>In development the browser is on <code>:5173</code> and the API on <code>:4000</code>. In production <code>CORS_ORIGIN</code> pins the single allowed origin.</dd>
+      <dt>Why</dt><dd>Secrets, database URL and OTP behaviour move between environments without a code change. <code>.env.example</code> is committed; <code>.env</code> is not.</dd>
+    </dl>
+  </div>
+
+  <h3>Front end</h3>
+
+  <div class="tech-card">
+    <div class="head"><h4>React</h4><span class="ver">18.3</span><span class="layer">UI</span></div>
+    <dl>
+      <dt>Where</dt><dd>39 page components across three role apps, plus a shared component library in <code>src/components/ui.jsx</code>.</dd>
+      <dt>Use case</dt><dd>The screens are stateful and dense — a consultation page holds notes, vitals, diagnoses, a prescription builder, a test picker and the patient's history, all mutating independently.</dd>
+      <dt>Why</dt><dd>Component composition is what keeps 39 pages from being 39 duplicated fetch-loading-error blocks. One <code>useApi</code> hook and one <code>&lt;Async&gt;</code> wrapper carry loading, error and empty states everywhere, so a page describes only its happy path.</dd>
+      <dt>Rejected</dt><dd>Vue and Svelte are equally capable here; React was chosen for ecosystem depth and because it is the PRD's stated front end.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>Vite</h4><span class="ver">6.4</span><span class="layer">Build tool</span></div>
+    <dl>
+      <dt>Where</dt><dd>Dev server on <code>:5173</code> with a proxy for <code>/api</code>; production build to <code>web/dist</code>.</dd>
+      <dt>Use case</dt><dd>Sub-second cold start and instant hot reload while building 39 pages.</dd>
+      <dt>Why</dt><dd>The dev proxy is the quiet win: the browser always calls <code>/api/...</code> on its own origin, in every environment, so there is no environment-specific base URL and no CORS configuration to get wrong in development.</dd>
+      <dt>Rejected</dt><dd>Create React App (unmaintained, slow), Webpack (configuration cost for no benefit here).</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>React Router</h4><span class="ver">6.28</span><span class="layer">Routing</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>src/App.jsx</code> — three nested route trees under <code>/app</code>, <code>/doctor</code> and <code>/reception</code>.</dd>
+      <dt>Use case</dt><dd>Each role's routes live inside a <code>&lt;Require role=…&gt;</code> guard wrapping a shared <code>&lt;Layout&gt;</code>, so the role gate is declared once per area rather than per page.</dd>
+      <dt>Why</dt><dd>Nested layout routes match the shape of the problem exactly: one sidebar per role, many pages inside it. A user who lands somewhere they do not belong is redirected to their own home, not shown an error.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>Recharts</h4><span class="ver">2.15</span><span class="layer">Charts</span></div>
+    <dl>
+      <dt>Where</dt><dd>Forecast chart with confidence band, occupancy trends, daily volume, revenue bars, department and payment-method pies, blood demand by group.</dd>
+      <dt>Use case</dt><dd>The forecast chart is the demanding one: historical actuals, predicted values and a shaded 95% interval on a single axis, with the two lines visually joined at the boundary.</dd>
+      <dt>Why</dt><dd>Composable React components (<code>&lt;ComposedChart&gt;</code> holding an <code>&lt;Area&gt;</code> plus two <code>&lt;Line&gt;</code>s) express that directly, and it renders responsively without manual sizing. Colours come from the same CSS variables as the rest of the interface, so charts follow the theme.</dd>
+      <dt>Rejected</dt><dd>Chart.js (imperative, canvas — awkward inside React), D3 directly (full control, far more code than these charts justify).</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>Plain CSS</h4><span class="ver">one 8 KB file</span><span class="layer">Styling</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>src/styles.css</code> — custom properties, layout primitives, component classes.</dd>
+      <dt>Use case</dt><dd>A clinical interface with a small, consistent vocabulary: cards, tables, badges, stat tiles, a bed grid.</dd>
+      <dt>Why nothing was added</dt><dd>CSS custom properties give theming, and a <code>prefers-color-scheme</code> block gives a full dark theme in around forty lines. Tailwind would have added a build step, a configuration file and class-name noise in every component to replace a file that gzips to 2.4 KB.</dd>
+    </dl>
+  </div>
+
+  <h3>Forecasting</h3>
+
+  <div class="tech-card">
+    <div class="head"><h4>Hand-written JavaScript models</h4><span class="ver">no dependency</span><span class="layer">Machine learning</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>src/forecast/models.js</code> — moving average, seasonal naive, linear trend (ordinary least squares), Holt-Winters with additive trend and a seven-day season. <code>metrics.js</code> holds MAE, RMSE and MAPE.</dd>
+      <dt>Use case</dt><dd>Hospital demand series are short (one to three years of daily points) and dominated by a weekly cycle plus a slow trend and an annual season. Holt-Winters models exactly that shape.</dd>
+      <dt>Why not Python</dt><dd>The PRD suggested pandas, statsmodels and XGBoost. Those earn their place on wide feature matrices and long histories. Here the winning model is roughly seventy lines of arithmetic, and writing it in JavaScript removed an entire service: no second runtime, no REST hop, no serialisation boundary, no separate deployment. A full run — seven metrics × three horizons plus eight blood groups, 45 forecasts — completes in about 150 ms on two years of data.</dd>
+      <dt>Honest limit</dt><dd>If the hospital later wants exogenous features (weather, local events, epidemic signals) or gradient-boosted models, that is the point to add a Python service. The <code>HospitalResourceDaily</code> table is already the clean interface it would read from.</dd>
+    </dl>
+  </div>
+
+  <h3>Tooling</h3>
+
+  <div class="tech-card">
+    <div class="head"><h4>node:test</h4><span class="ver">standard library</span><span class="layer">Testing</span></div>
+    <dl>
+      <dt>Where</dt><dd><code>server/test/forecast.test.js</code> — 14 tests over the models, accuracy metrics, data-quality rules and alert thresholds.</dd>
+      <dt>Why</dt><dd>Node ships a test runner and an assertion library. Adding Jest or Vitest would have meant a dependency, a configuration file and a transform pipeline to run assertions the platform already runs. <code>npm test</code> executes in about 70 ms.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>npm workspaces</h4><span class="ver">standard tooling</span><span class="layer">Monorepo</span></div>
+    <dl>
+      <dt>Where</dt><dd>Root <code>package.json</code> lists <code>server</code> and <code>web</code>.</dd>
+      <dt>Why</dt><dd>One <code>npm install</code> for the whole project and one <code>npm run dev</code> to start both halves — without Lerna, Nx or Turborepo, none of which two packages justify.</dd>
+    </dl>
+  </div>
+
+  <div class="tech-card">
+    <div class="head"><h4>Headless Chrome</h4><span class="ver">already installed</span><span class="layer">Documentation</span></div>
+    <dl>
+      <dt>Where</dt><dd>Renders <code>docs/*.html</code> into the PDF reports, including this one.</dd>
+      <dt>Why</dt><dd><code>--headless --print-to-pdf</code> turns an HTML file with print CSS into a paginated PDF. Puppeteer, wkhtmltopdf and a LaTeX toolchain were all unnecessary — the browser on the machine already does it.</dd>
+    </dl>
+  </div>
+
+  <h3>What was deliberately not added</h3>
+  <table>
+    <thead><tr><th>Not used</th><th>What replaced it</th></tr></thead>
+    <tbody>
+      <tr><td>Redux, Zustand, React Query</td><td>One <code>useApi</code> hook. Server data is fetched per page and reloaded after a mutation; there is no shared client state worth a store.</td></tr>
+      <tr><td>Tailwind, MUI, Bootstrap</td><td>One 8 KB stylesheet with custom properties.</td></tr>
+      <tr><td>TypeScript</td><td>Zod validates at the trust boundary, where types cannot help at runtime. Prisma still generates typed queries for editor completion.</td></tr>
+      <tr><td>Redis / BullMQ</td><td>Forecast runs take 150 ms, so they are synchronous. A queue becomes worthwhile when that stops being true.</td></tr>
+      <tr><td>Socket.io</td><td>Notifications are database rows polled once a minute. <code>notify()</code> is the seam a websocket would plug into.</td></tr>
+      <tr><td>Docker (for development)</td><td>SQLite plus <code>npm install</code>. Docker belongs in the production path, not between a developer and a first run.</td></tr>
+      <tr><td>A PDF generation library</td><td>The browser's print dialog for prescriptions and reports; headless Chrome for these documents.</td></tr>
+      <tr><td>PostGIS or a geo service</td><td>Haversine distance in twelve lines, which is accurate enough for city-level hospital search.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 3. DATA MODEL ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 3</span><h2>Data model</h2></div>
+
+  <p class="lede">
+    41 entities in <code>prisma/schema.prisma</code>, grouped by the part of the hospital they serve.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:32mm">Group</th><th>Entities</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Identity</strong></td><td><code>User</code> · <code>Session</code> · <code>OtpToken</code></td></tr>
+      <tr><td><strong>Organisation</strong></td><td><code>Hospital</code> · <code>Department</code> · <code>Doctor</code> · <code>DoctorAvailability</code> · <code>HospitalStaff</code></td></tr>
+      <tr><td><strong>Patient &amp; clinical</strong></td><td><code>Patient</code> · <code>MedicalRecord</code> · <code>Appointment</code> · <code>Consultation</code> · <code>Vitals</code> · <code>Diagnosis</code> · <code>Prescription</code> · <code>PrescriptionMedicine</code></td></tr>
+      <tr><td><strong>Laboratory</strong></td><td><code>LabTest</code> · <code>LabOrder</code> · <code>LabOrderItem</code> · <code>LabReport</code></td></tr>
+      <tr><td><strong>Pharmacy</strong></td><td><code>Medicine</code> · <code>DispenseRecord</code></td></tr>
+      <tr><td><strong>Inpatient</strong></td><td><code>Bed</code> · <code>Admission</code> · <code>Discharge</code> · <code>OperatingRoom</code> · <code>Surgery</code> · <code>EmergencyCase</code></td></tr>
+      <tr><td><strong>Finance</strong></td><td><code>Bill</code> · <code>BillItem</code> · <code>Payment</code> · <code>Insurance</code> · <code>InsuranceClaim</code></td></tr>
+      <tr><td><strong>Platform</strong></td><td><code>Notification</code> · <code>AuditLog</code> · <code>FileAsset</code></td></tr>
+      <tr><td><strong>Forecasting</strong></td><td><code>HospitalResourceDaily</code> · <code>Forecast</code> · <code>ForecastPoint</code> · <code>ForecastAlert</code> · <code>DataQualityIssue</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Three modelling decisions worth explaining</h3>
+
+  <div class="box">
+    <strong>One bed table, not two</strong>
+    The PRD lists <code>Bed</code> and <code>ICUBed</code> separately. They are modelled as one table with a
+    <code>type</code> discriminator (<code>GENERAL</code>, <code>ICU</code>, <code>ISOLATION</code>,
+    <code>PRIVATE</code>, <code>EMERGENCY</code>). A separate ICU table would duplicate every column,
+    every status transition and every occupancy query, and allocating an ICU bed would need a second
+    code path that could drift from the first.
+  </div>
+
+  <div class="box">
+    <strong>Enum-like columns are strings</strong>
+    SQLite has no enum type, so statuses are <code>String</code> with the permitted values listed in
+    <code>src/constants.js</code> and enforced by Zod at the API boundary. This keeps the schema portable
+    to PostgreSQL unchanged, and it puts the state machines — which appointment status may follow
+    which, which lab status may follow which — in one readable file instead of scattered across
+    handlers.
+  </div>
+
+  <div class="box">
+    <strong>One daily row is the forecasting interface</strong>
+    <code>HospitalResourceDaily</code> holds one row per hospital per day: OPD visits, admissions,
+    discharges, occupied beds and ICU beds, theatre cases, oxygen, blood total and blood by group,
+    revenue. Everything the models train on comes from that table and nothing else, which is why the
+    engine can be tested against synthetic history and why a hospital can bulk-load its own past data
+    without touching any other part of the system.
+  </div>
+
+  <h3>Relationships that carry rules</h3>
+  <table>
+    <thead><tr><th>Constraint</th><th>What it enforces</th></tr></thead>
+    <tbody>
+      <tr><td><code>@@unique([doctorId, scheduledAt])</code></td><td>Two patients cannot hold the same slot — the database is the arbiter, not the application.</td></tr>
+      <tr><td><code>Bill.appointmentId @unique</code></td><td>Consultation billing is idempotent; a retried request returns the existing bill.</td></tr>
+      <tr><td><code>@@unique([hospitalId, bedNumber])</code></td><td>Bed numbers are unique per hospital, so bulk creation can safely skip duplicates.</td></tr>
+      <tr><td><code>@@unique([hospitalId, name, batchNumber])</code></td><td>Restocking a known batch increments it instead of creating a second row.</td></tr>
+      <tr><td><code>@@unique([hospitalId, date])</code></td><td>The daily snapshot upserts; re-running it for a date corrects rather than duplicates.</td></tr>
+      <tr><td><code>Consultation.appointmentId @unique</code></td><td>One consultation per appointment; re-opening resumes the existing one.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 4. AUTH ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 4</span><h2>Authentication workflows</h2></div>
+
+  <h3>Patient registration</h3>
+  <div class="flow">
+    <span class="node start">Form submitted</span><span class="arrow">→</span>
+    <span class="node">User + Patient created</span><span class="arrow">→</span>
+    <span class="node">Status PENDING</span><span class="arrow">→</span>
+    <span class="node">OTP issued</span><span class="arrow">→</span>
+    <span class="node">Code verified</span><span class="arrow">→</span>
+    <span class="node end">ACTIVE + signed in</span>
+  </div>
+
+  <ol class="steps">
+    <li><span class="what">Uniqueness check</span> — <span class="detail">email and mobile are checked together; a clash returns 409 before anything is written.</span><code class="tech">POST /api/auth/register</code></li>
+    <li><span class="what">Create in one nested write</span> — <span class="detail">the <code>User</code> and its <code>Patient</code> profile are created in a single Prisma call, so a half-registered account cannot exist.</span></li>
+    <li><span class="what">Issue the OTP</span> — <span class="detail">six digits from <code>crypto.randomInt</code>, ten-minute expiry. In development it is logged and returned so the flow works without an SMS provider.</span></li>
+    <li><span class="what">Verify</span> — <span class="detail">the token is matched on user, purpose, code, unused and unexpired; consuming it marks it used so it cannot be replayed. The account becomes <span class="tag ok">ACTIVE</span> and a session is issued.</span><code class="tech">POST /api/auth/verify-otp</code></li>
+  </ol>
+
+  <h3>Sign-in</h3>
+  <ol class="steps">
+    <li><span class="what">One endpoint, three roles</span> — <span class="detail">the credential check is identical for every role; only the destination differs. Separate endpoints per role would be three copies of one handler.</span><code class="tech">POST /api/auth/login</code></li>
+    <li><span class="what">Identical failure message</span> — <span class="detail">a wrong password and an unknown account both answer <em>"Invalid email/mobile or password."</em> Distinguishing them tells an attacker which accounts exist.</span></li>
+    <li><span class="what">Branch on account state</span> — <span class="detail">blocked accounts are refused; unverified accounts get a fresh OTP and a 202; accounts with two-factor enabled get an MFA OTP and a 202.</span></li>
+    <li><span class="what">Issue the pair</span> — <span class="detail">a 30-minute access token, plus a 30-day refresh token stored as a revocable <code>Session</code> row with device and IP.</span></li>
+  </ol>
+
+  <h3>Token refresh — rotation</h3>
+  <ol class="steps">
+    <li><span class="what">Client hits a 401</span> — <span class="detail">the API client in <code>web/src/api.js</code> catches it and refreshes silently, once.</span></li>
+    <li><span class="what">Old token is revoked, new one issued</span> — <span class="detail">rotation on every refresh means a stolen refresh token has a short useful life.</span><code class="tech">POST /api/auth/refresh-token</code></li>
+    <li><span class="what">Original request is retried</span> — <span class="detail">the user never sees a login screen because a 30-minute token expired mid-session. Exactly one retry, so a genuine failure cannot loop.</span></li>
+  </ol>
+
+  <div class="box ok">
+    <strong>Session control</strong>
+    Patients can list their active sessions with device and IP and revoke any of them individually.
+    Changing a password revokes all of them — the standard signal that old sessions should not survive.
+  </div>
+</section>
+
+<!-- ============================ 5. APPOINTMENTS ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 5</span><h2>Appointment workflows</h2></div>
+
+  <h3>How a bookable slot comes to exist</h3>
+  <ol class="steps">
+    <li><span class="what">The doctor publishes windows</span> — <span class="detail">per weekday, for example Monday 09:00–13:00 and 17:00–20:00. The whole week is replaced in one transaction, so the schedule is never left half-updated.</span><code class="tech">PUT /api/doctors/{id}/availability</code></li>
+    <li><span class="what">A date expands into slots</span> — <span class="detail">each window is walked in <code>slotMinutes</code> steps; a step that would overrun the window end is dropped.</span><code class="tech">GET /api/doctors/{id}/slots?date=…</code></li>
+    <li><span class="what">Taken slots are removed</span> — <span class="detail">every appointment that day which is not cancelled or rejected removes its slot.</span></li>
+    <li><span class="what">Past slots are dropped</span> — <span class="detail">so today's list is genuinely bookable.</span></li>
+  </ol>
+
+  <h3>Booking</h3>
+  <ol class="steps">
+    <li><span class="what">Who is booking</span> — <span class="detail">a patient books only for themselves; reception may book for any patient at its hospital.</span><code class="tech">POST /api/appointments</code></li>
+    <li><span class="what">Server-side slot validation</span> — <span class="detail">the requested time must fall inside a published window <em>and</em> land on a slot boundary. A hand-crafted request for 09:07 is refused even though the UI would never offer it.</span></li>
+    <li><span class="what">Create, or lose the race</span> — <span class="detail">the unique index on <code>(doctorId, scheduledAt)</code> decides. A collision surfaces as <em>"This time slot is no longer available."</em></span></li>
+    <li><span class="what">Notify both sides</span> — <span class="detail">the doctor gets a new-request notification; the patient gets an awaiting-confirmation one.</span></li>
+  </ol>
+
+  <h3>Lifecycle — a state machine, not a free-form field</h3>
+  <div class="flow">
+    <span class="node start">REQUESTED</span><span class="arrow">→</span>
+    <span class="node">CONFIRMED</span><span class="arrow">→</span>
+    <span class="node">CHECKED_IN</span><span class="arrow">→</span>
+    <span class="node">IN_CONSULTATION</span><span class="arrow">→</span>
+    <span class="node end">COMPLETED</span>
+  </div>
+  <table>
+    <thead><tr><th>From</th><th>May become</th></tr></thead>
+    <tbody>
+      <tr><td><code>REQUESTED</code></td><td>CONFIRMED · CANCELLED · REJECTED</td></tr>
+      <tr><td><code>CONFIRMED</code></td><td>CHECKED_IN · CANCELLED · NO_SHOW</td></tr>
+      <tr><td><code>CHECKED_IN</code></td><td>IN_CONSULTATION · CANCELLED · NO_SHOW</td></tr>
+      <tr><td><code>IN_CONSULTATION</code></td><td>COMPLETED</td></tr>
+      <tr><td>terminal states</td><td>nothing</td></tr>
+    </tbody>
+  </table>
+  <p>
+    The table lives in <code>src/constants.js</code> and every transition is checked against it, so an
+    appointment cannot jump from requested to completed. Patients may only move an appointment to
+    cancelled; every other transition belongs to the clinic side.
+  </p>
+
+  <h3>The OPD queue</h3>
+  <ol class="steps">
+    <li><span class="what">Token at check-in, not at booking</span> — <span class="detail"><code>A-01</code>, <code>A-02</code>, … numbered per doctor per day, so the queue reflects who is physically present.</span></li>
+    <li><span class="what">Now serving</span> — <span class="detail">the appointment currently in consultation, or the last completed one.</span></li>
+    <li><span class="what">Estimated wait</span> — <span class="detail">patients ahead × the average measured consultation length for that doctor <em>today</em>, falling back to the doctor's configured slot length before any consultation has finished. A measured average beats a guessed constant.</span><code class="tech">GET /api/appointments/queue/status</code></li>
+  </ol>
+</section>
+
+<!-- ============================ 6. CLINICAL ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 6</span><h2>Clinical workflows</h2></div>
+
+  <h3>Consultation</h3>
+  <ol class="steps">
+    <li><span class="what">Opening the screen starts it</span> — <span class="detail">creating the consultation and moving the appointment to <span class="tag">IN_CONSULTATION</span> happen together. Re-opening resumes rather than duplicating, because <code>appointmentId</code> is unique.</span><code class="tech">POST /api/consultations</code></li>
+    <li><span class="what">Notes are saved incrementally</span> — <span class="detail">symptoms, clinical notes, treatment plan and follow-up date. A completed consultation is read-only.</span><code class="tech">PUT /api/consultations/{id}</code></li>
+    <li><span class="what">Vitals are upserted and bounded</span> — <span class="detail">one vitals row per consultation. Every field has a plausible clinical range; out-of-range values are refused at the boundary. Reception may record vitals before the doctor sees the patient.</span><code class="tech">PUT /api/consultations/{id}/vitals</code></li>
+    <li><span class="what">Diagnoses are appended</span> — <span class="detail">ICD-10 code, description, severity, primary flag. Multiple diagnoses per consultation are supported.</span><code class="tech">POST /api/consultations/{id}/diagnoses</code></li>
+    <li><span class="what">Completion fans out</span> — <span class="detail">see the box below. Refused with <em>"Record at least one diagnosis before completing the consultation."</em> if none exists.</span><code class="tech">POST /api/consultations/{id}/complete</code></li>
+  </ol>
+
+  <div class="box ok">
+    <strong>One click, five effects, one transaction</strong>
+    Completing a consultation marks it complete, closes the appointment and writes the
+    <code>MedicalRecord</code> entry — all inside a single <code>$transaction</code>, so a partial
+    completion is impossible. The consultation bill is then raised idempotently, the patient is
+    notified that notes and prescription are available, and a follow-up reminder is created if a date
+    was set.
+  </div>
+
+  <h3>Prescription</h3>
+  <ol class="steps">
+    <li><span class="what">Access is re-checked</span> — <span class="detail">the doctor must have a treating relationship with the patient, independently of the consultation screen.</span><code class="tech">POST /api/prescriptions</code></li>
+    <li><span class="what">Items carry full dosing</span> — <span class="detail">medicine, dose, frequency, duration in days, route (oral, IV, IM, topical, inhaled) and instruction.</span></li>
+    <li><span class="what">A record entry is written</span> — <span class="detail">so the prescription appears in the patient's timeline, not only under the prescriptions tab.</span></li>
+    <li><span class="what">Audited and notified</span> — <span class="detail"><code>CREATE_PRESCRIPTION</code> goes to the audit log; the patient is notified.</span></li>
+    <li><span class="what">Cancellation is narrow</span> — <span class="detail">only the prescribing doctor, and only while nothing has been dispensed against it.</span></li>
+  </ol>
+</section>
+
+<!-- ============================ 7. LAB ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 7</span><h2>Laboratory workflow</h2></div>
+
+  <div class="flow">
+    <span class="lane">Doctor</span>
+    <span class="node start">ORDERED</span><span class="arrow">→</span>
+    <span class="lane">Reception</span>
+    <span class="node">SAMPLE_COLLECTED</span><span class="arrow">→</span>
+    <span class="node">PROCESSING</span><span class="arrow">→</span>
+    <span class="node">RESULT_ENTERED</span><span class="arrow">→</span>
+    <span class="lane">2nd account</span>
+    <span class="node end">VERIFIED</span>
+  </div>
+
+  <ol class="steps">
+    <li><span class="what">Order</span> — <span class="detail">the doctor picks tests from the hospital catalogue and a priority: routine, urgent or STAT.</span><code class="tech">POST /api/lab/orders</code></li>
+    <li><span class="what">Queue order</span> — <span class="detail">STAT first, then urgent, then routine; oldest first inside each band.</span></li>
+    <li><span class="what">Collect</span> — <span class="detail">a sample identifier is assigned; collection time and collector are stamped automatically.</span><code class="tech">POST /api/lab/orders/{id}/collect</code></li>
+    <li><span class="what">Process</span> — <span class="detail">visible to the ordering doctor as progress.</span></li>
+    <li><span class="what">Enter results</span> — <span class="detail">value, unit, reference range and flag per test. A result naming a test that is not on the order is rejected. The order advances as a whole, so a half-filled report never reaches the patient.</span><code class="tech">POST /api/lab/orders/{id}/results</code></li>
+    <li><span class="what">Verify and release</span> — <span class="detail">the gate described below.</span><code class="tech">POST /api/lab/orders/{id}/verify</code></li>
+  </ol>
+
+  <div class="box deny">
+    <strong>The four-eyes gate</strong>
+    The account that entered the results cannot release them —
+    <em>"Results must be verified by someone other than the technician who entered them."</em>
+    This is a patient-safety property, not paperwork, and it survived the reduction to three roles: it
+    is the reason the seed creates two reception accounts rather than one.
+  </div>
+
+  <div class="box ok">
+    <strong>What verification triggers, in one transaction</strong>
+    The report is marked verified with the verifier and timestamp, the order moves to
+    <span class="tag ok">VERIFIED</span>, and a <code>MedicalRecord</code> entry is written — typed as
+    imaging or laboratory according to the tests ordered. Then the patient is notified that the report
+    is ready, and the ordering doctor is notified with the values, escalated to
+    <span class="tag deny">CRITICAL</span> severity if any result carries a critical flag. The release
+    is written to the audit log.
+  </div>
+
+  <p>
+    Until verification the patient sees the order as in progress, never as a result. A patient
+    requesting an unverified report directly is refused.
+  </p>
+</section>
+
+<!-- ============================ 8. PHARMACY ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 8</span><h2>Pharmacy workflow</h2></div>
+
+  <h3>Stock</h3>
+  <ol class="steps">
+    <li><span class="what">Receive</span> — <span class="detail">medicine, generic name, form, strength, batch, quantity, reorder level, expiry, supplier, price. Stock already past its expiry date is refused on entry.</span><code class="tech">POST /api/pharmacy/inventory</code></li>
+    <li><span class="what">Restock is an upsert</span> — <span class="detail">the same medicine and batch increments that batch rather than creating a second row, so batch quantities stay meaningful.</span></li>
+    <li><span class="what">Three standing alert lists</span> — <span class="detail">expired, expiring within thirty days, and at or below the reorder level.</span><code class="tech">GET /api/pharmacy/alerts</code></li>
+  </ol>
+
+  <h3>Dispensing</h3>
+  <ol class="steps">
+    <li><span class="what">Queue</span> — <span class="detail">active prescriptions written by this hospital's doctors, newest first.</span><code class="tech">GET /api/pharmacy/prescriptions</code></li>
+    <li><span class="what">Every line is validated before anything changes</span> — <span class="detail">the batch must exist, belong to this hospital, be unexpired, hold enough units, and the prescription line must belong to that prescription. All checks run before the first write.</span></li>
+    <li><span class="what">Dispense atomically</span> — <span class="detail">stock decrement, dispensed quantity on the prescription line, and a <code>DispenseRecord</code> for the audit trail — one transaction per item, all in one call.</span><code class="tech">POST /api/pharmacy/dispense</code></li>
+    <li><span class="what">Reorder alerts fire immediately</span> — <span class="detail">anything that crossed its reorder level during this dispense notifies the reception desk with the remaining quantity.</span></li>
+  </ol>
+
+  <div class="box">
+    <strong>Why oxygen and blood are inventory items</strong>
+    Oxygen cylinders and blood units are stocked like any other medicine, so their consumption flows
+    into the same daily snapshot the forecasting engine trains on. Blood carries its group in the
+    <code>strength</code> field, which is what makes a per-group demand forecast possible without a
+    separate blood-bank subsystem.
+  </div>
+</section>
+
+<!-- ============================ 9. INPATIENT ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 9</span><h2>Inpatient workflows</h2></div>
+
+  <h3>Admission</h3>
+  <div class="flow">
+    <span class="lane">Doctor</span>
+    <span class="node start">REQUESTED</span><span class="arrow">→</span>
+    <span class="lane">Reception</span>
+    <span class="node">APPROVED</span><span class="arrow">→</span>
+    <span class="node">ADMITTED</span><span class="arrow">→</span>
+    <span class="lane">Doctor</span>
+    <span class="node end">DISCHARGED</span>
+    <span class="arrow" style="margin-left:3mm">or</span>
+    <span class="node bad">REJECTED</span>
+  </div>
+
+  <ol class="steps">
+    <li><span class="what">Doctor requests</span> — <span class="detail">reason and working diagnosis. Refused if the patient already has an open admission, which prevents duplicate stays.</span><code class="tech">POST /api/admissions</code></li>
+    <li><span class="what">Reception approves or rejects</span> — <span class="detail">a rejection notifies the requesting doctor.</span></li>
+    <li><span class="what">Bed allocation admits the patient</span> — <span class="detail">claiming the bed and admitting are the same transaction; see Section 14.</span><code class="tech">POST /api/admissions/{id}/admit</code></li>
+    <li><span class="what">Transfer</span> — <span class="detail">the new bed is claimed and the old released to cleaning together, so no interval exists where the patient occupies two beds or none.</span><code class="tech">POST /api/admissions/{id}/transfer</code></li>
+  </ol>
+
+  <h3>Bed states</h3>
+  <div class="flow">
+    <span class="node end">AVAILABLE</span><span class="arrow">→</span>
+    <span class="node bad">OCCUPIED</span><span class="arrow">→</span>
+    <span class="node">CLEANING</span><span class="arrow">→</span>
+    <span class="node end">AVAILABLE</span>
+    <span class="arrow" style="margin-left:3mm">also</span>
+    <span class="node">RESERVED</span>
+    <span class="node">MAINTENANCE</span>
+  </div>
+  <p>
+    A discharged bed goes to <span class="tag warn">CLEANING</span>, never straight to available — it is
+    not usable until turned over. An occupied bed cannot be edited directly:
+    <em>"Discharge the patient before changing this bed status."</em> Hospital bed and ICU capacity are
+    derived from the bed table itself, so the public profile and the forecast denominators are never
+    typed in twice.
+  </p>
+
+  <h3>Surgery scheduling</h3>
+  <ol class="steps">
+    <li><span class="what">Book a theatre</span> — <span class="detail">theatre, surgeon, optional admission, procedure, start time, duration and charge.</span><code class="tech">POST /api/ot/surgeries</code></li>
+    <li><span class="what">Overlap is rejected</span> — <span class="detail">candidate bookings are narrowed by the longest allowed duration, then the exact overlap test runs in JavaScript, because a relational <code>WHERE</code> cannot express "start + duration &gt; x".</span></li>
+    <li><span class="what">The theatre follows the surgery</span> — <span class="detail">in use while operating, cleaning when complete, available if cancelled.</span></li>
+  </ol>
+
+  <h3>Discharge</h3>
+  <ol class="steps">
+    <li><span class="what">Write the summary</span> — <span class="detail">final diagnosis, procedures, medications, investigation summary, instructions, follow-up date and discharge type (routine, against medical advice, referred, death).</span><code class="tech">POST /api/admissions/{id}/discharge</code></li>
+    <li><span class="what">Four writes, one transaction</span> — <span class="detail">the discharge record, the admission status, the bed released to cleaning, and a <code>MedicalRecord</code> entry.</span></li>
+    <li><span class="what">Consolidated bill</span> — <span class="detail">room or ICU nights (part-days round up, minimum one), verified lab and imaging, completed surgeries, and medicines dispensed during the stay.</span></li>
+    <li><span class="what">Patient notified</span> — <span class="detail">with the final bill number and total; the summary becomes downloadable.</span></li>
+  </ol>
+</section>
+
+<!-- ============================ 10. EMERGENCY ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 10</span><h2>Emergency workflow</h2></div>
+
+  <ol class="steps">
+    <li><span class="what">Register without an account</span> — <span class="detail">a walk-in needs only a name and optionally a phone. Requiring an unconscious patient to sign up first is not a workable triage flow, so the case can exist before the patient record does.</span><code class="tech">POST /api/emergency</code></li>
+    <li><span class="what">Triage</span> — <span class="detail">critical, high, medium or low. The working queue sorts by triage first and arrival time second, and re-triage is one dropdown.</span></li>
+    <li><span class="what">Assign a doctor</span> — <span class="detail">the assigned doctor is notified immediately, at <span class="tag deny">CRITICAL</span> severity when the triage level is critical.</span></li>
+    <li><span class="what">Allocate an emergency bed</span> — <span class="detail">the same atomic claim as a ward admission; the previous bed, if any, is released to cleaning.</span><code class="tech">POST /api/emergency/{id}/allocate-bed</code></li>
+    <li><span class="what">Escalate to an admission</span> — <span class="detail">creates an approved admission and closes the emergency case. This requires a registered patient, so a walk-in must be registered first — the one place the shortcut has to end.</span><code class="tech">POST /api/emergency/{id}/admit</code></li>
+  </ol>
+</section>
+
+<!-- ============================ 11. BILLING ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 11</span><h2>Billing workflows</h2></div>
+
+  <h3>Where bills come from</h3>
+  <table>
+    <thead><tr><th>Trigger</th><th>Bill produced</th></tr></thead>
+    <tbody>
+      <tr><td>Consultation completed</td><td>Consultation fee. Idempotent through the unique <code>appointmentId</code> — a retry returns the existing bill.</td></tr>
+      <tr><td>Patient discharged</td><td>Consolidated stay: room or ICU nights, verified lab and imaging, completed surgeries, medicines dispensed during the stay.</td></tr>
+      <tr><td>Reception creates one</td><td>Manual bill for walk-in services, with any line items.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box ok">
+    <strong>The total is never stored independently of its items</strong>
+    Every mutation — adding an item, removing one, applying a discount or tax, recording a payment —
+    routes through one <code>recalculate()</code> function that re-derives subtotal, total, paid amount
+    and status from the line items and payments. A bill total can therefore never disagree with what
+    the bill is made of, which is the failure mode that makes billing bugs expensive.
+  </div>
+
+  <h3>Payment</h3>
+  <ol class="steps">
+    <li><span class="what">Who may pay</span> — <span class="detail">the patient for their own bill, or reception for any bill at its hospital.</span><code class="tech">POST /api/billing/{id}/payments</code></li>
+    <li><span class="what">Overpayment refused</span> — <span class="detail"><em>"Payment exceeds the outstanding amount of N."</em></span></li>
+    <li><span class="what">Status derives itself</span> — <span class="detail">pending, partially paid or paid, computed from payments rather than set by hand.</span></li>
+    <li><span class="what">Patient notified</span> — <span class="detail">with the amount recorded and the balance remaining.</span></li>
+  </ol>
+
+  <h3>Insurance</h3>
+  <ol class="steps">
+    <li><span class="what">Policy on file</span> — <span class="detail">provider, policy number, coverage amount, validity, optional document.</span><code class="tech">POST /api/billing/insurance</code></li>
+    <li><span class="what">Claim raised against a bill</span> — <span class="detail">the policy must belong to that patient and the claim cannot exceed the bill total.</span><code class="tech">POST /api/billing/{id}/claims</code></li>
+    <li><span class="what">Settlement becomes a payment</span> — <span class="detail">recording a settled claim with an approved amount automatically writes an <code>INSURANCE</code> payment for that amount. Money received is money recorded — the two cannot drift apart.</span><code class="tech">PUT /api/billing/claims/{id}</code></li>
+  </ol>
+
+  <div class="box warn">
+    <strong>Money is Decimal, never Float</strong>
+    All monetary columns use Prisma's <code>Decimal</code>. Because <code>Decimal</code> serialises to a
+    string by default, a <code>serialize()</code> helper converts it to a number on the way out, so the
+    client never receives <code>"900"</code> where it expects <code>900</code>.
+  </div>
+</section>
+
+<!-- ============================ 12. FORECASTING ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 12</span><h2>Forecasting pipeline</h2></div>
+
+  <p class="lede">
+    The feature that separates this from a booking system: it converts operational history into
+    7, 14 and 30-day predictions of demand, and warns before capacity is breached rather than after.
+  </p>
+
+  <figure>
+    <svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, Segoe UI, Roboto, sans-serif">
+      <style>
+        .fb { fill:#fff; stroke:#d6dee7; }
+        .fh { fill:#eaf5fa; stroke:#0d7ea8; }
+        .fo { fill:#e6f6ef; stroke:#12805c; }
+        .ft { font-size:10px; fill:#12202f; font-weight:600; }
+        .fs { font-size:8.5px; fill:#5a6b7d; }
+        .fl { stroke:#8b9aab; stroke-width:1; marker-end:url(#a2); }
+      </style>
+      <defs><marker id="a2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#8b9aab"/></marker></defs>
+
+      <rect x="0" y="20" width="118" height="46" rx="4" class="fb"/>
+      <text x="10" y="38" class="ft">Live activity</text>
+      <text x="10" y="52" class="fs">appointments, beds,</text>
+      <text x="10" y="62" class="fs">theatre, dispensing</text>
+
+      <line x1="120" y1="43" x2="146" y2="43" class="fl"/>
+
+      <rect x="150" y="20" width="118" height="46" rx="4" class="fh"/>
+      <text x="160" y="38" class="ft">Daily snapshot</text>
+      <text x="160" y="52" class="fs">one row per hospital</text>
+      <text x="160" y="62" class="fs">per day (upsert)</text>
+
+      <line x1="270" y1="43" x2="296" y2="43" class="fl"/>
+
+      <rect x="300" y="20" width="118" height="46" rx="4" class="fb"/>
+      <text x="310" y="38" class="ft">Quality gate</text>
+      <text x="310" y="52" class="fs">6 rules — bad rows out,</text>
+      <text x="310" y="62" class="fs">outliers flagged, kept</text>
+
+      <line x1="420" y1="43" x2="446" y2="43" class="fl"/>
+
+      <rect x="450" y="20" width="140" height="46" rx="4" class="fb"/>
+      <text x="460" y="38" class="ft">Backtest 4 models</text>
+      <text x="460" y="52" class="fs">holdout window,</text>
+      <text x="460" y="62" class="fs">lowest MAPE wins</text>
+
+      <line x1="592" y1="43" x2="618" y2="43" class="fl"/>
+
+      <rect x="622" y="20" width="138" height="46" rx="4" class="fb"/>
+      <text x="632" y="38" class="ft">Refit + forecast</text>
+      <text x="632" y="52" class="fs">full series, h days,</text>
+      <text x="632" y="62" class="fs">95% band</text>
+
+      <line x1="691" y1="68" x2="691" y2="88" class="fl"/>
+      <line x1="691" y1="98" x2="470" y2="98" stroke="#8b9aab" stroke-width="1"/>
+      <line x1="470" y1="98" x2="470" y2="88" stroke="#8b9aab" stroke-width="1"/>
+
+      <rect x="380" y="90" width="180" height="42" rx="4" class="fo"/>
+      <text x="390" y="107" class="ft">Dashboard + alerts</text>
+      <text x="390" y="121" class="fs">45 forecasts · ~150 ms · notifications</text>
+
+      <rect x="600" y="90" width="160" height="42" rx="4" class="fb"/>
+      <text x="610" y="107" class="ft">Stored</text>
+      <text x="610" y="121" class="fs">Forecast · Point · Alert</text>
+    </svg>
+    <figcaption>Snapshot → quality gate → model race → forecast → alerts. Everything runs in the API process.</figcaption>
+  </figure>
+
+  <h3>Step 1 — the daily snapshot</h3>
+  <p>
+    <code>captureDailySnapshot()</code> rolls one day of live activity into a single
+    <code>HospitalResourceDaily</code> row: OPD visits, admissions, discharges, occupied beds and ICU
+    beds, theatre cases, oxygen dispensed, blood units total and by group, and revenue collected. It
+    upserts on <code>(hospitalId, date)</code>, so re-running it corrects the row rather than
+    duplicating it. Hospitals migrating historical data use the bulk ingest endpoint instead.
+  </p>
+
+  <h3>Step 2 — the data quality gate</h3>
+  <table>
+    <thead><tr><th>Rule</th><th>Severity</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>Invalid or future date</td><td><span class="tag deny">ERROR</span></td><td>Row excluded</td></tr>
+      <tr><td>Duplicate date</td><td><span class="tag deny">ERROR</span></td><td>Row excluded</td></tr>
+      <tr><td>Negative quantity</td><td><span class="tag deny">ERROR</span></td><td>Row excluded</td></tr>
+      <tr><td>Occupancy above capacity</td><td><span class="tag deny">ERROR</span></td><td>Row excluded — the two figures came from different places</td></tr>
+      <tr><td>Missing value</td><td><span class="tag warn">WARNING</span></td><td>Recorded, row kept</td></tr>
+      <tr><td>Outlier beyond 4σ</td><td><span class="tag warn">WARNING</span></td><td>Flagged but kept</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box">
+    <strong>Why outliers are kept</strong>
+    A four-sigma spike in OPD visits is usually a real surge — an epidemic week, a mass-casualty event
+    — and that is exactly the pattern management needs the model to have seen. Rows are only excluded
+    when they are internally impossible, such as more occupied beds than beds.
+  </div>
+
+  <h3>Step 3 — the model race</h3>
+  <table>
+    <thead><tr><th>Model</th><th>Captures</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Moving average</td><td>Level only</td><td>Baseline — proves the others earn their place</td></tr>
+      <tr><td>Seasonal naive</td><td>Weekly cycle</td><td>Strong on stable weekday patterns</td></tr>
+      <tr><td>Linear trend (OLS)</td><td>Direction</td><td>Wins on smoothly drifting series such as ICU occupancy</td></tr>
+      <tr><td>Holt-Winters</td><td>Level + trend + 7-day season</td><td>Usually wins; smoothing constants grid-searched over 125 combinations</td></tr>
+    </tbody>
+  </table>
+  <p>
+    All four predict a held-out window of recent history. The lowest MAPE wins, is refit on the full
+    series, and produces the real forecast. Zero actuals are skipped when computing MAPE rather than
+    counted as infinite error. The confidence band is ±1.96 × the residual spread of the winning
+    model, clamped to the metric's valid range — an occupancy forecast can never print 104%.
+  </p>
+
+  <h5>Measured on the seeded two-year history</h5>
+  <table>
+    <thead><tr><th>Metric</th><th>Winning model</th><th>MAPE</th></tr></thead>
+    <tbody>
+      <tr><td>ICU occupancy</td><td>Linear trend</td><td>2.5%</td></tr>
+      <tr><td>Oxygen consumption</td><td>Holt-Winters</td><td>3.2%</td></tr>
+      <tr><td>OPD visits</td><td>Holt-Winters</td><td>4.5%</td></tr>
+      <tr><td>Bed occupancy</td><td>Holt-Winters</td><td>8.5%</td></tr>
+      <tr><td>IPD admissions</td><td>Holt-Winters</td><td>9.4%</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Different metrics select different winners, which is the point of racing them. The dashboard prints
+    the winning model and its error rate beside every number, so a forecast is never presented as more
+    certain than it is.
+  </p>
+
+  <h3>Step 4 — alerts</h3>
+  <table>
+    <thead><tr><th>Metric</th><th>Condition</th><th>Severity</th></tr></thead>
+    <tbody>
+      <tr><td>ICU occupancy</td><td>Forecast peak ≥ 90%</td><td><span class="tag deny">CRITICAL</span></td></tr>
+      <tr><td>Bed occupancy</td><td>Forecast peak ≥ 85%</td><td><span class="tag warn">WARNING</span></td></tr>
+      <tr><td>Oxygen</td><td>Demand growth ≥ 15%</td><td><span class="tag warn">WARNING</span></td></tr>
+      <tr><td>Blood (total or per group)</td><td>Demand growth ≥ 20%</td><td><span class="tag warn">WARNING</span></td></tr>
+    </tbody>
+  </table>
+  <p>
+    Alerts are derived from the forecast, not from live occupancy, which is what makes them
+    actionable — the warning arrives days before the ceiling is reached. Each carries a recommended
+    action, notifies the reception desk, and is acknowledged once handled. Alerts fire on the shortest
+    horizon that crosses a threshold, so one capacity risk does not produce three near-identical
+    warnings.
+  </p>
+
+  <h3>Where the training data comes from</h3>
+  <p>
+    The seed generates two years of synthetic daily history from a deterministic pseudo-random
+    generator, so every run produces identical data and comparable accuracy numbers. It layers a
+    weekday factor (Sunday quiet, Monday heavy), an annual respiratory season peaking in January, a
+    slow growth trend, a festival dip, and Box-Muller Gaussian noise. Occupancy carries over day to
+    day, driven by the admission and discharge balance and pulled back toward a comfortable level;
+    oxygen tracks ICU load; blood tracks theatre cases and admissions. The result is a series with
+    genuine structure for the models to find, rather than noise they cannot beat.
+  </p>
+</section>
+
+<!-- ============================ 13. SUPPORTING ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 13</span><h2>Supporting workflows</h2></div>
+
+  <h3>Notifications</h3>
+  <p>
+    <code>notify()</code> inserts a row; the interface polls once a minute and shows an unread count.
+    Failures are logged and swallowed, so a notification problem can never break the clinical action
+    that triggered it. Categories cover appointments, reports, payments, follow-ups, capacity alerts
+    and system events, each with an info, warning or critical severity.
+  </p>
+  <table>
+    <thead><tr><th>Event</th><th>Who is told</th></tr></thead>
+    <tbody>
+      <tr><td>Appointment booked, confirmed, cancelled, rescheduled</td><td>Patient and doctor</td></tr>
+      <tr><td>Checked in with token</td><td>Patient</td></tr>
+      <tr><td>Consultation complete, prescription issued</td><td>Patient</td></tr>
+      <tr><td>Lab report verified</td><td>Patient and ordering doctor (critical severity if flagged)</td></tr>
+      <tr><td>Medicines dispensed</td><td>Patient</td></tr>
+      <tr><td>Payment recorded</td><td>Patient</td></tr>
+      <tr><td>Admitted, discharged</td><td>Patient</td></tr>
+      <tr><td>Emergency patient assigned</td><td>Assigned doctor</td></tr>
+      <tr><td>Low stock crossed, capacity forecast breach</td><td>Reception desk</td></tr>
+    </tbody>
+  </table>
+
+  <h3>File management</h3>
+  <p>
+    Uploads are restricted to PDF, JPEG, PNG and WebP at 15 MB, one file per request. The stored name
+    is 16 random bytes with an extension derived from the verified MIME type; the client's filename is
+    kept only as metadata. Access is checked per file — the uploader, the patient's care team through
+    the same relationship rule used for records, or hospital-wide if the file is marked as such.
+    Every download is audited.
+  </p>
+
+  <h3>Analytics</h3>
+  <table>
+    <thead><tr><th>View</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td>Operational dashboard</td><td>Today's OPD, admissions, discharges, emergency arrivals, pending tests, bed and ICU occupancy, revenue, open alerts</td></tr>
+      <tr><td>Patients</td><td>Daily volume, unique patients, new versus returning, by department, gender and age group</td></tr>
+      <tr><td>Doctors</td><td>Appointments, completions, follow-ups, no-shows, cancellations, completion and no-show rates</td></tr>
+      <tr><td>Financial</td><td>Collected, outstanding, daily collection, revenue by service category, split by payment method</td></tr>
+      <tr><td>Operations</td><td>Occupancy trend, average OPD waiting time measured from check-in to consultation start, lab orders by status</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reports and export</h3>
+  <p>
+    Seven reports — OPD, admissions, occupancy, revenue, laboratory, pharmacy inventory and forecast —
+    each previewable in the browser and downloadable as CSV over any date range. The CSV is rendered
+    server-side with correct quoting and escaping; the browser only saves what it is handed.
+  </p>
+
+  <h3>Audit log</h3>
+  <p>
+    Sensitive actions are recorded with actor, action, entity type and id, free-text detail and client
+    IP. Writes are fire-and-forget so an audit failure never breaks the request it describes. The log
+    is scoped to people who work at the reading hospital — its own doctors and desk accounts — because
+    without that filter one hospital's desk could read another's trail.
+  </p>
+  <p>
+    <span class="tag">LOGIN</span><span class="tag">LOGOUT</span>
+    <span class="tag">VIEW MEDICAL RECORD</span><span class="tag">MODIFY MEDICAL RECORD</span>
+    <span class="tag">CREATE PRESCRIPTION</span><span class="tag">UPLOAD REPORT</span>
+    <span class="tag">VERIFY REPORT</span><span class="tag">GENERATE BILL</span>
+    <span class="tag">RECORD PAYMENT</span><span class="tag">VERIFY DOCTOR</span>
+    <span class="tag">ADMIT PATIENT</span><span class="tag">DISCHARGE PATIENT</span>
+    <span class="tag">RUN FORECAST</span>
+  </p>
+</section>
+
+<!-- ============================ 14. CONCURRENCY ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 14</span><h2>Concurrency and integrity</h2></div>
+
+  <p class="lede">
+    Four places where two users can collide. Each is handled at the database, not with an
+    application-level check that a second request can slip past.
+  </p>
+
+  <h3>1 · Two patients, one appointment slot</h3>
+  <pre>@@unique([doctorId, scheduledAt])        // schema.prisma
+
+try { await prisma.appointment.create({ … }) }
+catch (err) {
+  if (err.code === 'P2002')
+    throw conflict('This time slot is no longer available. Please select another slot.')
+  throw err
+}</pre>
+  <p>
+    Checking availability and then inserting leaves a window between the two. The unique index closes
+    it: the database rejects the second insert whatever the timing, and the handler translates that
+    into a message the patient can act on.
+  </p>
+
+  <h3>2 · Two patients, one bed</h3>
+  <pre>const claimed = await tx.bed.updateMany({
+  where: { id: bedId, hospitalId, status: 'AVAILABLE' },   // ← the guard
+  data:  { status: 'OCCUPIED' },
+})
+if (claimed.count === 0) return null                        // someone else won</pre>
+  <p>
+    A conditional update is an atomic compare-and-set: the bed is claimed only if it is still available
+    at that instant. The count tells the handler whether it won. Because the claim and the admission
+    are in the same <code>$transaction</code>, a bed can never be marked occupied without a patient in
+    it. The same pattern protects transfers and emergency bed allocation.
+  </p>
+
+  <h3>3 · A bill paid twice</h3>
+  <p>
+    Every payment triggers <code>recalculate()</code>, which re-derives the paid amount from the payment
+    rows themselves rather than incrementing a counter. Two concurrent payments therefore both land
+    and the total is correct; a payment exceeding the outstanding balance is refused outright.
+  </p>
+
+  <h3>4 · A duplicate bill from a retried request</h3>
+  <p>
+    Consultation billing is keyed on the unique <code>appointmentId</code>. If the request is retried —
+    a flaky connection, an impatient click — the function finds the existing bill and returns it. The
+    same idempotence protects the discharge bill through its admission link.
+  </p>
+
+  <h3>Transactional boundaries</h3>
+  <table>
+    <thead><tr><th>Operation</th><th>Written together</th></tr></thead>
+    <tbody>
+      <tr><td>Complete a consultation</td><td>Consultation status + appointment status + medical record</td></tr>
+      <tr><td>Admit a patient</td><td>Bed claim + admission status + bed assignment</td></tr>
+      <tr><td>Transfer a patient</td><td>New bed claimed + old bed released + admission updated</td></tr>
+      <tr><td>Discharge</td><td>Discharge record + admission status + bed released + medical record</td></tr>
+      <tr><td>Verify a lab report</td><td>Report status + order status + medical record</td></tr>
+      <tr><td>Dispense medicine</td><td>Stock decrement + dispensed quantity + dispense record + prescription status</td></tr>
+      <tr><td>Replace clinic hours</td><td>Delete all + create all</td></tr>
+      <tr><td>Register a hospital</td><td>Hospital + departments + first reception account</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 15. SECURITY ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 15</span><h2>Security model</h2></div>
+
+  <h3>Three layers, in order</h3>
+  <ol class="steps">
+    <li><span class="what">Authentication</span> — <span class="detail"><code>authenticate</code> verifies the JWT and loads the user with their patient, doctor or staff profile, so <code>req.user</code> carries <code>patientId</code>, <code>doctorId</code> and <code>hospitalId</code> and no handler re-queries them. A blocked account is refused here.</span></li>
+    <li><span class="what">Role</span> — <span class="detail"><code>requireRole(...)</code> gates the route. There is no bypass account: the platform-wide role does not exist.</span></li>
+    <li><span class="what">Relationship</span> — <span class="detail"><code>assertPatientAccess()</code> is the layer that matters clinically, described below.</span></li>
+  </ol>
+
+  <div class="box">
+    <strong>PRD section 52, implemented literally</strong>
+    A doctor does not automatically see every patient. <code>src/lib/access.js</code> grants access only
+    where an appointment, consultation, admission, lab order or prescription links that doctor to that
+    patient. Reception sees patients with a record at its own hospital. A patient sees only themselves.
+    Every other case is refused with <em>"You do not have permission to access this record."</em>
+  </div>
+
+  <h3>Protections in place</h3>
+  <table>
+    <thead><tr><th>Concern</th><th>Measure</th></tr></thead>
+    <tbody>
+      <tr><td>Password storage</td><td>bcrypt at cost 10; the hash never leaves the server</td></tr>
+      <tr><td>Session theft</td><td>30-minute access token; refresh tokens rotate on every use and are revocable rows</td></tr>
+      <tr><td>Password change</td><td>Revokes every live session</td></tr>
+      <tr><td>Account enumeration</td><td>Identical failure message for unknown account and wrong password</td></tr>
+      <tr><td>Brute force</td><td>20 requests per 15 minutes on credential endpoints; 300/minute globally</td></tr>
+      <tr><td>OTP prediction</td><td><code>crypto.randomInt</code>, ten-minute expiry, single use</td></tr>
+      <tr><td>Injection</td><td>Prisma parameterises every query; no string-built SQL exists in the codebase</td></tr>
+      <tr><td>Input validation</td><td>Zod on every body and query, with clinical ranges on vitals</td></tr>
+      <tr><td>Malicious uploads</td><td>MIME allow-list, 15 MB cap, random stored filename, extension derived from verified type</td></tr>
+      <tr><td>Cross-tenant access</td><td>Every hospital-scoped route checks <code>hospitalId</code>; no role can read across hospitals</td></tr>
+      <tr><td>Unverified clinical data</td><td>Lab results are invisible to the patient until a second account releases them</td></tr>
+      <tr><td>Accountability</td><td>Audit log on every sensitive action, with actor and IP</td></tr>
+      <tr><td>Error leakage</td><td>Unknown errors are logged server-side and returned as a generic message</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box warn">
+    <strong>Before a real deployment</strong>
+    Replace <code>JWT_SECRET</code>, set <code>OTP_DEV_MODE=false</code> so codes stop being returned in
+    API responses, terminate TLS in front of the API, pin <code>CORS_ORIGIN</code> to the real front-end
+    origin, move rate-limit state to Redis if more than one instance runs, and move uploads to object
+    storage with encryption at rest.
+  </div>
+</section>
+
+<!-- ============================ 16. TESTING ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 16</span><h2>Testing and verification</h2></div>
+
+  <h3>Three layers</h3>
+  <table>
+    <thead><tr><th>Layer</th><th>Command</th><th>Covers</th></tr></thead>
+    <tbody>
+      <tr><td>Unit — 14 tests</td><td><code>npm test</code></td><td>Model accuracy, metric arithmetic, data-quality rules, alert thresholds</td></tr>
+      <tr><td>Endpoint smoke — 54 checks</td><td><code>npm run test:smoke</code></td><td>Every read endpoint as all three roles, plus negative checks that a doctor is refused reception screens</td></tr>
+      <tr><td>End-to-end journey</td><td><code>npm run test:e2e</code></td><td>Book → confirm → check in → consult → diagnose → prescribe → lab → verify → complete → bill → pay</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What the unit tests actually assert</h3>
+  <ul>
+    <li>MAE, RMSE and MAPE return their textbook values on a worked example.</li>
+    <li>MAPE skips zero actuals instead of returning infinity.</li>
+    <li>Seasonal naive reproduces a known weekly pattern to within 2% error.</li>
+    <li><strong>Holt-Winters beats a flat moving average on a seasonal series</strong> — the complex model must earn its place, not merely run.</li>
+    <li>Linear trend extrapolates a straight line exactly.</li>
+    <li>Holt-Winters refuses a series shorter than two seasons rather than fitting nonsense.</li>
+    <li>Negative quantities, duplicate dates, future dates and occupancy-above-capacity are excluded.</li>
+    <li>A genuine surge is flagged as an outlier but kept in the training set.</li>
+    <li>ICU, bed, oxygen and blood alerts fire at their thresholds and stay silent below them.</li>
+  </ul>
+
+  <h3>Guards proven live by the end-to-end run</h3>
+  <ul>
+    <li>Double-booking the same slot returns <span class="tag deny">409</span>.</li>
+    <li>Booking off a slot boundary returns <span class="tag deny">400</span>.</li>
+    <li>Verifying one's own lab results is refused.</li>
+    <li>Overpaying a bill is refused.</li>
+    <li>One patient cannot read another patient's history.</li>
+    <li>A doctor is refused pharmacy, beds, analytics and forecasting endpoints.</li>
+  </ul>
+
+  <div class="box ok">
+    <strong>Deterministic by design</strong>
+    The seed uses a fixed-seed Mulberry32 generator, so every run produces identical demo data and
+    therefore comparable forecast accuracy between runs. A change in MAPE means the model changed, not
+    the dice.
+  </div>
+</section>
+
+<!-- ============================ 17. DEPLOYMENT ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 17</span><h2>Configuration and deployment</h2></div>
+
+  <h3>Environment</h3>
+  <table>
+    <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>DATABASE_URL</code></td><td><code>file:./dev.db</code> for SQLite; a <code>postgresql://</code> URL in production</td></tr>
+      <tr><td><code>JWT_SECRET</code></td><td>Signing key — must be replaced outside development</td></tr>
+      <tr><td><code>JWT_EXPIRES_IN</code></td><td>Access-token lifetime, default 30 minutes</td></tr>
+      <tr><td><code>REFRESH_EXPIRES_DAYS</code></td><td>Refresh-token lifetime, default 30 days</td></tr>
+      <tr><td><code>OTP_DEV_MODE</code></td><td><code>true</code> returns OTPs in API responses; must be <code>false</code> in production</td></tr>
+      <tr><td><code>UPLOAD_DIR</code></td><td>Where uploaded documents are written</td></tr>
+      <tr><td><code>CORS_ORIGIN</code></td><td>Allowed browser origin</td></tr>
+      <tr><td><code>PORT</code></td><td>API port, default 4000</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Moving to PostgreSQL</h3>
+  <pre>1. schema.prisma  →  datasource db { provider = "postgresql" }
+2. .env           →  DATABASE_URL="postgresql://user:pass@host:5432/hospital"
+3. npx prisma db push
+
+No application code changes. The schema avoids SQLite-only constructs:
+enum-like columns are validated strings, and JSON is stored as text.</pre>
+
+  <h3>Local setup</h3>
+  <pre>npm install     # both workspaces
+npm run setup   # create the database, seed two years of demo data
+npm run dev     # API on :4000, web on :5173</pre>
+
+  <h3>Production shape</h3>
+  <ul>
+    <li><code>web</code> builds to static files served by any CDN or web server.</li>
+    <li><code>server</code> runs as a Node process behind a reverse proxy terminating TLS.</li>
+    <li>PostgreSQL with regular backups — clinical records must survive.</li>
+    <li>Uploads move to object storage rather than the local disk.</li>
+    <li>The daily snapshot and forecast run are HTTP endpoints, so any existing cron can drive them.</li>
+  </ul>
+</section>
+
+<!-- ============================ 18. SIMPLIFICATIONS ============================ -->
+<section class="chapter">
+  <div class="chapter-head"><span class="chapter-num">Section 18</span><h2>Deliberate simplifications</h2></div>
+
+  <p class="lede">
+    Corners cut on purpose. Each is listed with the ceiling it hits and the upgrade that removes it,
+    so none of them becomes a surprise later.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:52mm">Simplification</th><th>Ceiling</th><th>Upgrade path</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>One bed table with a <code>type</code> column instead of separate ICU tables</td>
+        <td>None expected</td>
+        <td>Not a limitation — the discriminator is the correct model</td>
+      </tr>
+      <tr>
+        <td>Notifications are polled database rows</td>
+        <td>Up to 60 seconds stale</td>
+        <td>A websocket transport subscribing to the same <code>notify()</code> call</td>
+      </tr>
+      <tr>
+        <td>Payments recorded directly, no gateway</td>
+        <td>No real money moves</td>
+        <td>Gateway callback writes the same payment row; only the route changes</td>
+      </tr>
+      <tr>
+        <td>Distance computed after the page is fetched</td>
+        <td>Distance sorting applies within a page</td>
+        <td>PostGIS, if search grows beyond city level</td>
+      </tr>
+      <tr>
+        <td>"Download PDF" uses the browser print dialog</td>
+        <td>No server-side branded template</td>
+        <td>A PDF library, or the same headless-Chrome pipeline used for these documents</td>
+      </tr>
+      <tr>
+        <td>Forecast runs synchronously</td>
+        <td>~150 ms per hospital</td>
+        <td>A job queue when hospital count makes that visible</td>
+      </tr>
+      <tr>
+        <td>Holt-Winters constants by grid search</td>
+        <td>125 fits per series, milliseconds</td>
+        <td>Nelder-Mead if fit time ever becomes noticeable</td>
+      </tr>
+      <tr>
+        <td>Low-stock filter applied in JavaScript</td>
+        <td>Prisma cannot compare two columns</td>
+        <td>A raw SQL predicate if inventories grow large</td>
+      </tr>
+      <tr>
+        <td>Rate-limit state in memory</td>
+        <td>Correct for one instance only</td>
+        <td>Redis store when running more than one</td>
+      </tr>
+      <tr>
+        <td>No platform-administrator role</td>
+        <td>Hospitals self-activate; reception verifies its own doctors</td>
+        <td>Reintroduce the role for genuine multi-tenant approval</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What is not simplified</h3>
+  <p>
+    Input validation at the trust boundary, error handling that would otherwise lose clinical data,
+    every security measure, and the transactional guarantees around beds, billing and consultations.
+    Those are where a shortcut costs more than it saves, and none was taken.
+  </p>
+
+  <div class="footnote">
+    Smart Hospital Management, Patient Care &amp; Forecasting Platform — technical report, version 1.0,
+    15 August 2026. Every workflow, technology choice, threshold and measurement in this document
+    reflects the implemented system. Companion document: <em>Complete Workflows by User Role</em>.
+  </div>
+</section>
+
+</body>
+</html>

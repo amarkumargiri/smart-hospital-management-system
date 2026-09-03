@@ -1,0 +1,35 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:push": "prisma db push",
+    "db:reset": "rm -f prisma/dev.db && prisma db push && node prisma/seed.js",
+    "seed": "node prisma/seed.js",
+    "test": "node --test",
+    "test:e2e": "node scripts/e2e.mjs",
+    "test:smoke": "node scripts/smoke.mjs",
+    "test:documents": "node scripts/e2e-documents.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pdfjs-dist": "^4.10.38",
+    "sharp": "^0.35.3",
+    "tesseract.js": "^7.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.1.0"
+  }
+}
