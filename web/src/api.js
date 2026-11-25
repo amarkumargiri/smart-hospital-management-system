@@ -2,6 +2,7 @@
 // refreshes it once when it expires, and turns error responses into thrown
 // Errors carrying the server's message.
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const ACCESS_KEY = 'sh.accessToken';
 const REFRESH_KEY = 'sh.refreshToken';
 
@@ -29,7 +30,7 @@ class ApiError extends Error {
 async function refreshAccessToken() {
   const refreshToken = tokens.refresh;
   if (!refreshToken) return false;
-  const res = await fetch('/api/auth/refresh-token', {
+  const res = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refreshToken }),
@@ -44,7 +45,7 @@ async function refreshAccessToken() {
 
 async function request(method, path, body, { retry = true, raw = false } = {}) {
   const isForm = body instanceof FormData;
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${API_BASE_URL}/api${path}`, {
     method,
     headers: {
       ...(isForm || body === undefined ? {} : { 'Content-Type': 'application/json' }),
